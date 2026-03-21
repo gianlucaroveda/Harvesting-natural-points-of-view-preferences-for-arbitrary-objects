@@ -5,7 +5,7 @@ let lastUpVector = { x: 0, y: 0, z: 0 };
 let lastSavedPosition = null;
 let stableStartTime = null;
 const STABLE_THRESHOLD = 0.12;
-const CHECK_INTERVAL = 520;
+const CHECK_INTERVAL = 700;
 
 let povVector = new THREE.Vector3();
 
