@@ -1,0 +1,936 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Mesh Normalizer Pro</title>
+    <style>
+
+        body { margin: 0; display: flex; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; overflow: hidden; background: #1a1a1a; }
+        #viewer { flex-grow: 1; background: #1a1a1a; position: relative; }
+        #ui-panel { 
+            width: 380px; 
+            background: #1e1e1e; 
+            color: #ffffff; 
+            padding: 25px; 
+            border-left: 1px solid #333; 
+            overflow-y: auto; 
+            box-shadow: -2px 0 10px rgba(0,0,0,0.5); 
+        }
+
+        h2 { 
+            margin-top: 0; 
+            color: #ffffff; 
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px; 
+        }
+
+        .matrix-display { 
+            background: #000000; 
+            color: #3498db; 
+            padding: 15px; 
+            font-family: 'Consolas', monospace; 
+            font-size: 13px; 
+            border-radius: 6px; 
+            white-space: pre; 
+            line-height: 1.5; 
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+
+        .controls { margin: 20px 0; }
+
+        label { 
+            display: block; 
+            margin-top: 15px; 
+            font-weight: 600; 
+            color: #bdc3c7; 
+            font-size: 0.9em; 
+        }
+
+        input[type="range"] { 
+            width: 100%; 
+            cursor: pointer; 
+            margin: 8px 0; 
+            accent-color: #3498db; 
+        }
+
+        .nav-btns { display: flex; gap: 10px; margin-bottom: 15px; }
+
+        button { 
+            flex: 1; 
+            padding: 12px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 4px; 
+            background: #3498db; 
+            color: white; 
+            font-weight: bold;
+            transition: opacity 0.2s, background 0.2s;
+        }
+
+        button:hover { background: #2980b9; }
+
+        .val-badge { float: right; color: #3498db; }
+
+        hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
+        small, .hint { color: #7f8c8d; font-size: 0.8em; }
+        #resetRotBtn, #resetTransBtn { background: #555; }
+        #resetRotBtn:hover, #resetTransBtn:hover { background: #666; }
+        
+        #saveBtn { background: #3498db; border: 1px solid #ffffff33; }
+        #toggleModeBtn { border: 1px solid #ffffff33; }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/PLYLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/TrackballControls.js"></script>
+</head>
+<body>
+
+<div id="viewer"></div>
+
+<div id="ui-panel">
+    <h2>Normalizer</h2>
+    
+    <div class="nav-btns">
+        <button id="prevBtn">← Indietro</button>
+        <button id="nextBtn">Avanti →</button>
+    </div>
+
+    <div class="controls">
+        <strong id="mesh-name" style="color: #3498db;">Mesh: --</strong>
+        
+        <label>
+            Raggio Sfera di Riferimento 
+            <span class="val-badge" id="radius-val">1.0</span>
+        </label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="range" id="radius-range" min="0.1" max="5" step="0.05" value="1" style="flex-grow: 1;">
+            <button id="toggleSphereBtn" style="flex: 0 0 40px; padding: 5px; background: #333; font-size: 12px; color: white;" title="Mostra/Nascondi Sfera">👁️</button>
+        </div>
+        <hr>
+        <label>Rotazione X <span class="val-badge" id="rotX-val">0°</span></label>
+        <input type="range" id="rotX-range" min="0" max="360" step="1" value="0">
+
+        <label>Rotazione Y <span class="val-badge" id="rotY-val">0°</span></label>
+        <input type="range" id="rotY-range" min="0" max="360" step="1" value="0">
+
+        <label>Rotazione Z <span class="val-badge" id="rotZ-val">0°</span></label>
+        <input type="range" id="rotZ-range" min="0" max="360" step="1" value="0">
+    </div>
+    <button id="resetRotBtn">Reset Rotazioni</button>
+    
+
+    <hr>
+    <label>Traslazione (Offset) <span class="val-badge" id="trans-val">0.00, 0.00, 0.00</span></label>
+    <div class="hint">Usa ALT + Trascina o Slider</div>
+
+    <label style="font-size: 0.8em;">Offset X</label>
+    <input type="range" id="transX-range" min="-5" max="5" step="0.01" value="0">
+
+    <label style="font-size: 0.8em;">Offset Y</label>
+    <input type="range" id="transY-range" min="-5" max="5" step="0.01" value="0">
+
+    <label style="font-size: 0.8em;">Offset Z</label>
+    <input type="range" id="transZ-range" min="-5" max="5" step="0.01" value="0">
+
+    <button id="resetTransBtn">Reset Traslazioni</button>
+
+    <label>Matrice di Trasformazione 4x4</label>
+    <div id="matrix-box" class="matrix-display"></div>
+
+    <hr>
+    <div class="nav-btns" style="flex-direction: column;">
+        <button id="resetCamBtn" style="background: #444;">Pov iniziale</button>
+        <button id="toggleModeBtn" style="background: #27ae60;">Modo: Camera</button>
+        <button id="saveBtn" style="font-size: 1.1em;">💾 Salva nel Database</button>
+    </div>
+</div>
+
+<script type="module">
+
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x101010);
+
+
+    const camera = new THREE.PerspectiveCamera(75, (window.innerWidth - 380) / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth - 380, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.getElementById('viewer').appendChild(renderer.domElement);
+
+    const toggleSphereBtn = document.getElementById('toggleSphereBtn');
+    toggleSphereBtn.onclick = () => {
+        referenceSphere.visible = !referenceSphere.visible;
+        toggleSphereBtn.style.background = referenceSphere.visible ? "#6c757d" : "#333";
+        toggleSphereBtn.innerText = referenceSphere.visible ? "👁️" : "🚫";
+    };
+
+    let interactionMode = "camera";
+    let isDragging = false;
+    let prevMouse = { x: 0, y: 0 };
+
+
+    const toggleBtn = document.getElementById('toggleModeBtn');
+
+
+    toggleBtn.onclick = () => {
+        if (interactionMode === "camera") {
+            interactionMode = "object";
+            toggleBtn.innerText = "Modo: Oggetto";
+            toggleBtn.style.background = "#dc3545";
+            controls.enabled = false;
+        } else {
+            interactionMode = "camera";
+            toggleBtn.innerText = "Modo: Camera";
+            toggleBtn.style.background = "#28a745"; 
+            controls.enabled = true; 
+        }
+    };
+
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; 
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 10, 7.5);
+    scene.add(dirLight);
+
+    scene.add(new THREE.GridHelper(10, 20, 0x888888, 0x444444));
+    
+    const referenceSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 32, 32),
+        new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.1 })
+    );
+    scene.add(referenceSphere);
+
+
+    function resetCamera() {
+        camera.position.set(0, 0, 2);
+        camera.up.set(0, 1, 0);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        controls.target.set(0, 0, 0);
+        controls.update();
+        
+    }
+
+    const resetBtn = document.getElementById('resetCamBtn');
+
+
+    if (resetBtn) {
+        resetBtn.onclick = resetCamera; 
+    }
+    renderer.domElement.addEventListener("dblclick", resetCamera);
+
+
+renderer.domElement.addEventListener('mousedown', (e) => {
+    if (interactionMode === "object") {
+        isDragging = true;
+
+        if (e.button === 2) e.preventDefault(); 
+    }
+    prevMouse = { x: e.clientX, y: e.clientY };
+});
+
+renderer.domElement.addEventListener('contextmenu', (e) => {
+    if (interactionMode === "object") e.preventDefault();
+});
+
+window.addEventListener('mouseup', () => { isDragging = false; });
+
+    function normalizeAngle(angle) {
+        return ((angle % 360) + 360) % 360;
+    }
+
+    let translationOffset = { x: 0, y: 0, z: 0 };
+
+    document.getElementById('resetRotBtn').onclick = () => {
+        ['rotX-range', 'rotY-range', 'rotZ-range'].forEach(id => {
+            document.getElementById(id).value = 0;
+        });
+        updateTransformation();
+    };
+
+    document.getElementById('resetTransBtn').onclick = () => {
+        ['transX-range', 'transY-range', 'transZ-range'].forEach(id => {
+            document.getElementById(id).value = 0;
+        });
+
+        if (typeof translationOffset !== 'undefined') {
+            translationOffset = { x: 0, y: 0, z: 0 };
+        }
+        updateTransformation();
+    };
+
+    window.addEventListener('mousemove', (e) => {
+        if (isDragging && interactionMode === "object" && currentObject) {
+            const deltaX = e.clientX - prevMouse.x;
+            const deltaY = e.clientY - prevMouse.y;
+
+            if (e.altKey || e.buttons === 4) {
+                const sensitivity = 0.005;
+
+                const sTX = document.getElementById('transX-range');
+                const sTY = document.getElementById('transY-range');
+
+                sTX.value = (parseFloat(sTX.value) + deltaX * sensitivity).toFixed(3);
+                sTY.value = (parseFloat(sTY.value) - deltaY * sensitivity).toFixed(3);
+            } 
+            else {
+
+                const sliderX = document.getElementById('rotX-range');
+                const sliderY = document.getElementById('rotY-range');
+                const sliderZ = document.getElementById('rotZ-range');
+
+                if (e.buttons === 1) {
+                    sliderX.value = normalizeAngle(parseFloat(sliderX.value) + deltaY);
+                    sliderY.value = normalizeAngle(parseFloat(sliderY.value) + deltaX);
+                } else if (e.buttons === 2) {
+                    sliderZ.value = normalizeAngle(parseFloat(sliderZ.value) + deltaX);
+                }
+            }
+            updateTransformation();
+        }
+        prevMouse = { x: e.clientX, y: e.clientY };
+    });
+
+    const meshPaths = [
+        //Modell list that you want to load for normalization. 
+    ];
+    let currentIndex = 0;
+    let currentObject = null;
+    let originalCenter = new THREE.Vector3();
+    let originalRadius = 1;
+
+    const loader = new THREE.GLTFLoader();
+
+    function loadMesh(index) {
+        const path = meshPaths[index];
+        if (currentObject) scene.remove(currentObject);
+        document.getElementById('mesh-name').innerText = `Mesh: ${path.split('/').pop()}`;
+
+        loader.load(path, (gltf) => {
+            currentObject = gltf.scene;
+            const box = new THREE.Box3().setFromObject(currentObject);
+            const sphere = new THREE.Sphere();
+            box.getBoundingSphere(sphere);
+            
+            originalCenter.copy(sphere.center);
+            originalRadius = sphere.radius;
+
+            scene.add(currentObject);
+            updateTransformation();
+        });
+    }
+
+    renderer.domElement.addEventListener('wheel', (e) => {
+
+        if (interactionMode === "object") {
+            e.preventDefault(); 
+
+            const sliderRadius = document.getElementById('radius-range');
+            const step = parseFloat(sliderRadius.step) || 0.05;
+            let val = parseFloat(sliderRadius.value);
+
+            if (e.deltaY < 0) {
+                val += step;
+            } else {
+                val -= step;
+            }
+
+            val = Math.max(sliderRadius.min, Math.min(sliderRadius.max, val));
+            
+            sliderRadius.value = val;
+            updateTransformation();
+        }
+    }, { passive: false });
+
+function updateTransformation() {
+    if (!currentObject) return;
+
+    const tx = parseFloat(document.getElementById('transX-range').value);
+    const ty = parseFloat(document.getElementById('transY-range').value);
+    const tz = parseFloat(document.getElementById('transZ-range').value);
+    
+    const targetRadius = parseFloat(document.getElementById('radius-range').value);
+    
+    const rotXdeg = document.getElementById('rotX-range').value;
+    const rotYdeg = document.getElementById('rotY-range').value;
+    const rotZdeg = document.getElementById('rotZ-range').value;
+
+    const rotX = (parseFloat(rotXdeg) * Math.PI) / 180;
+    const rotY = (parseFloat(rotYdeg) * Math.PI) / 180;
+    const rotZ = (parseFloat(rotZdeg) * Math.PI) / 180;
+
+    document.getElementById('trans-val').innerText = `${tx.toFixed(2)}, ${ty.toFixed(2)}, ${tz.toFixed(2)}`;
+    document.getElementById('radius-val').innerText = targetRadius.toFixed(2);
+    document.getElementById('rotX-val').innerText = rotXdeg + '°';
+    document.getElementById('rotY-val').innerText = rotYdeg + '°';
+    document.getElementById('rotZ-val').innerText = rotZdeg + '°';
+
+    referenceSphere.position.set(tx, ty, tz);
+    referenceSphere.scale.set(targetRadius, targetRadius, targetRadius);
+
+    const s = targetRadius / originalRadius;
+    currentObject.rotation.set(0, 0, 0);
+    currentObject.scale.set(s, s, s);
+    currentObject.rotation.set(rotX, rotY, rotZ);
+
+    const centeredPos = new THREE.Vector3(-originalCenter.x * s, -originalCenter.y * s, -originalCenter.z * s);
+    centeredPos.applyEuler(currentObject.rotation);
+    
+    currentObject.position.copy(centeredPos).add(new THREE.Vector3(tx, ty, tz));
+
+    currentObject.updateMatrix();
+    displayMatrix(currentObject.matrix);
+}
+
+    function displayMatrix(matrix) {
+        const e = matrix.elements;
+        document.getElementById('matrix-box').innerText = 
+            `[ ${e[0].toFixed(3)}, ${e[4].toFixed(3)}, ${e[8].toFixed(3)}, ${e[12].toFixed(3)} ]\n` +
+            `[ ${e[1].toFixed(3)}, ${e[5].toFixed(3)}, ${e[9].toFixed(3)}, ${e[13].toFixed(3)} ]\n` +
+            `[ ${e[2].toFixed(3)}, ${e[6].toFixed(3)}, ${e[10].toFixed(3)}, ${e[14].toFixed(3)} ]\n` +
+            `[ ${e[3].toFixed(3)}, ${e[7].toFixed(3)}, ${e[11].toFixed(3)}, ${e[15].toFixed(3)} ]`;
+    }
+
+    ['radius-range', 'rotX-range', 'rotY-range', 'rotZ-range','transX-range', 'transY-range', 'transZ-range'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.oninput = updateTransformation;
+    });
+
+    document.getElementById('prevBtn').onclick = () => {
+        currentIndex = (currentIndex - 1 + meshPaths.length) % meshPaths.length;
+        loadMesh(currentIndex);
+    };
+    
+    document.getElementById('nextBtn').onclick = () => {
+        currentIndex = (currentIndex + 1) % meshPaths.length;
+        loadMesh(currentIndex);
+    };
+
+    document.getElementById('saveBtn').onclick = () => {
+    if (!currentObject) return;
+
+    let meshName = prompt("Inserisci il nome per questa configurazione mesh:", 
+                          document.getElementById('mesh-name').innerText.replace('Mesh: ', ''));
+    
+    if (!meshName) return;
+
+    const matrixArray = currentObject.matrix.elements;
+
+    const data = {
+        mesh_name: meshName,
+        matrix: Array.from(matrixArray) 
+    };
+
+    fetch("http://127.0.0.1:5000/insert_mesh_info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === "success") {
+            alert("success!");
+        } else if (result.error === "exists") {
+            alert("already exists!");
+        } else {
+            alert("Errore: " + result.message);
+        }
+    })
+    .catch(error => alert("Errore di connessione al server"));
+};
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    window.onresize = () => {
+        camera.aspect = (window.innerWidth - 380) / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth - 380, window.innerHeight);
+    };
+
+    loadMesh(currentIndex);
+    animate();
+</script>
+</body>
+=======
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Mesh Normalizer Pro</title>
+    <style>
+
+        body { margin: 0; display: flex; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; overflow: hidden; background: #1a1a1a; }
+        #viewer { flex-grow: 1; background: #1a1a1a; position: relative; }
+        #ui-panel { 
+            width: 380px; 
+            background: #1e1e1e; 
+            color: #ffffff; 
+            padding: 25px; 
+            border-left: 1px solid #333; 
+            overflow-y: auto; 
+            box-shadow: -2px 0 10px rgba(0,0,0,0.5); 
+        }
+
+        h2 { 
+            margin-top: 0; 
+            color: #ffffff; 
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px; 
+        }
+
+        .matrix-display { 
+            background: #000000; 
+            color: #3498db; 
+            padding: 15px; 
+            font-family: 'Consolas', monospace; 
+            font-size: 13px; 
+            border-radius: 6px; 
+            white-space: pre; 
+            line-height: 1.5; 
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+
+        .controls { margin: 20px 0; }
+
+        label { 
+            display: block; 
+            margin-top: 15px; 
+            font-weight: 600; 
+            color: #bdc3c7; 
+            font-size: 0.9em; 
+        }
+
+        input[type="range"] { 
+            width: 100%; 
+            cursor: pointer; 
+            margin: 8px 0; 
+            accent-color: #3498db; 
+        }
+
+        .nav-btns { display: flex; gap: 10px; margin-bottom: 15px; }
+
+        button { 
+            flex: 1; 
+            padding: 12px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 4px; 
+            background: #3498db; 
+            color: white; 
+            font-weight: bold;
+            transition: opacity 0.2s, background 0.2s;
+        }
+
+        button:hover { background: #2980b9; }
+
+        .val-badge { float: right; color: #3498db; }
+
+        hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
+        small, .hint { color: #7f8c8d; font-size: 0.8em; }
+        #resetRotBtn, #resetTransBtn { background: #555; }
+        #resetRotBtn:hover, #resetTransBtn:hover { background: #666; }
+        
+        #saveBtn { background: #3498db; border: 1px solid #ffffff33; }
+        #toggleModeBtn { border: 1px solid #ffffff33; }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/PLYLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/TrackballControls.js"></script>
+</head>
+<body>
+
+<div id="viewer"></div>
+
+<div id="ui-panel">
+    <h2>Normalizer</h2>
+    
+    <div class="nav-btns">
+        <button id="prevBtn">← Indietro</button>
+        <button id="nextBtn">Avanti →</button>
+    </div>
+
+    <div class="controls">
+        <strong id="mesh-name" style="color: #3498db;">Mesh: --</strong>
+        
+        <label>
+            Raggio Sfera di Riferimento 
+            <span class="val-badge" id="radius-val">1.0</span>
+        </label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="range" id="radius-range" min="0.1" max="5" step="0.05" value="1" style="flex-grow: 1;">
+            <button id="toggleSphereBtn" style="flex: 0 0 40px; padding: 5px; background: #333; font-size: 12px; color: white;" title="Mostra/Nascondi Sfera">👁️</button>
+        </div>
+        <hr>
+        <label>Rotazione X <span class="val-badge" id="rotX-val">0°</span></label>
+        <input type="range" id="rotX-range" min="0" max="360" step="1" value="0">
+
+        <label>Rotazione Y <span class="val-badge" id="rotY-val">0°</span></label>
+        <input type="range" id="rotY-range" min="0" max="360" step="1" value="0">
+
+        <label>Rotazione Z <span class="val-badge" id="rotZ-val">0°</span></label>
+        <input type="range" id="rotZ-range" min="0" max="360" step="1" value="0">
+    </div>
+    <button id="resetRotBtn">Reset Rotazioni</button>
+    
+
+    <hr>
+    <label>Traslazione (Offset) <span class="val-badge" id="trans-val">0.00, 0.00, 0.00</span></label>
+    <div class="hint">Usa ALT + Trascina o Slider</div>
+
+    <label style="font-size: 0.8em;">Offset X</label>
+    <input type="range" id="transX-range" min="-5" max="5" step="0.01" value="0">
+
+    <label style="font-size: 0.8em;">Offset Y</label>
+    <input type="range" id="transY-range" min="-5" max="5" step="0.01" value="0">
+
+    <label style="font-size: 0.8em;">Offset Z</label>
+    <input type="range" id="transZ-range" min="-5" max="5" step="0.01" value="0">
+
+    <button id="resetTransBtn">Reset Traslazioni</button>
+
+    <label>Matrice di Trasformazione 4x4</label>
+    <div id="matrix-box" class="matrix-display"></div>
+
+    <hr>
+    <div class="nav-btns" style="flex-direction: column;">
+        <button id="resetCamBtn" style="background: #444;">Pov iniziale</button>
+        <button id="toggleModeBtn" style="background: #27ae60;">Modo: Camera</button>
+        <button id="saveBtn" style="font-size: 1.1em;">💾 Salva nel Database</button>
+    </div>
+</div>
+
+<script type="module">
+
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x101010);
+
+
+    const camera = new THREE.PerspectiveCamera(75, (window.innerWidth - 380) / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth - 380, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.getElementById('viewer').appendChild(renderer.domElement);
+
+    const toggleSphereBtn = document.getElementById('toggleSphereBtn');
+    toggleSphereBtn.onclick = () => {
+        referenceSphere.visible = !referenceSphere.visible;
+        toggleSphereBtn.style.background = referenceSphere.visible ? "#6c757d" : "#333";
+        toggleSphereBtn.innerText = referenceSphere.visible ? "👁️" : "🚫";
+    };
+
+    let interactionMode = "camera";
+    let isDragging = false;
+    let prevMouse = { x: 0, y: 0 };
+
+
+    const toggleBtn = document.getElementById('toggleModeBtn');
+
+
+    toggleBtn.onclick = () => {
+        if (interactionMode === "camera") {
+            interactionMode = "object";
+            toggleBtn.innerText = "Modo: Oggetto";
+            toggleBtn.style.background = "#dc3545";
+            controls.enabled = false;
+        } else {
+            interactionMode = "camera";
+            toggleBtn.innerText = "Modo: Camera";
+            toggleBtn.style.background = "#28a745"; 
+            controls.enabled = true; 
+        }
+    };
+
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; 
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 10, 7.5);
+    scene.add(dirLight);
+
+    scene.add(new THREE.GridHelper(10, 20, 0x888888, 0x444444));
+    
+    const referenceSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 32, 32),
+        new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.1 })
+    );
+    scene.add(referenceSphere);
+
+
+    function resetCamera() {
+        camera.position.set(0, 0, 2);
+        camera.up.set(0, 1, 0);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        controls.target.set(0, 0, 0);
+        controls.update();
+        
+    }
+
+    const resetBtn = document.getElementById('resetCamBtn');
+
+
+    if (resetBtn) {
+        resetBtn.onclick = resetCamera; 
+    }
+    renderer.domElement.addEventListener("dblclick", resetCamera);
+
+
+renderer.domElement.addEventListener('mousedown', (e) => {
+    if (interactionMode === "object") {
+        isDragging = true;
+
+        if (e.button === 2) e.preventDefault(); 
+    }
+    prevMouse = { x: e.clientX, y: e.clientY };
+});
+
+renderer.domElement.addEventListener('contextmenu', (e) => {
+    if (interactionMode === "object") e.preventDefault();
+});
+
+window.addEventListener('mouseup', () => { isDragging = false; });
+
+    function normalizeAngle(angle) {
+        return ((angle % 360) + 360) % 360;
+    }
+
+    let translationOffset = { x: 0, y: 0, z: 0 };
+
+    document.getElementById('resetRotBtn').onclick = () => {
+        ['rotX-range', 'rotY-range', 'rotZ-range'].forEach(id => {
+            document.getElementById(id).value = 0;
+        });
+        updateTransformation();
+    };
+
+    document.getElementById('resetTransBtn').onclick = () => {
+        ['transX-range', 'transY-range', 'transZ-range'].forEach(id => {
+            document.getElementById(id).value = 0;
+        });
+
+        if (typeof translationOffset !== 'undefined') {
+            translationOffset = { x: 0, y: 0, z: 0 };
+        }
+        updateTransformation();
+    };
+
+    window.addEventListener('mousemove', (e) => {
+        if (isDragging && interactionMode === "object" && currentObject) {
+            const deltaX = e.clientX - prevMouse.x;
+            const deltaY = e.clientY - prevMouse.y;
+
+            if (e.altKey || e.buttons === 4) {
+                const sensitivity = 0.005;
+
+                const sTX = document.getElementById('transX-range');
+                const sTY = document.getElementById('transY-range');
+
+                sTX.value = (parseFloat(sTX.value) + deltaX * sensitivity).toFixed(3);
+                sTY.value = (parseFloat(sTY.value) - deltaY * sensitivity).toFixed(3);
+            } 
+            else {
+
+                const sliderX = document.getElementById('rotX-range');
+                const sliderY = document.getElementById('rotY-range');
+                const sliderZ = document.getElementById('rotZ-range');
+
+                if (e.buttons === 1) {
+                    sliderX.value = normalizeAngle(parseFloat(sliderX.value) + deltaY);
+                    sliderY.value = normalizeAngle(parseFloat(sliderY.value) + deltaX);
+                } else if (e.buttons === 2) {
+                    sliderZ.value = normalizeAngle(parseFloat(sliderZ.value) + deltaX);
+                }
+            }
+            updateTransformation();
+        }
+        prevMouse = { x: e.clientX, y: e.clientY };
+    });
+
+    const meshPaths = [
+        //Modell list that you want to load for normalization. 
+    ];
+    let currentIndex = 0;
+    let currentObject = null;
+    let originalCenter = new THREE.Vector3();
+    let originalRadius = 1;
+
+    const loader = new THREE.GLTFLoader();
+
+    function loadMesh(index) {
+        const path = meshPaths[index];
+        if (currentObject) scene.remove(currentObject);
+        document.getElementById('mesh-name').innerText = `Mesh: ${path.split('/').pop()}`;
+
+        loader.load(path, (gltf) => {
+            currentObject = gltf.scene;
+            const box = new THREE.Box3().setFromObject(currentObject);
+            const sphere = new THREE.Sphere();
+            box.getBoundingSphere(sphere);
+            
+            originalCenter.copy(sphere.center);
+            originalRadius = sphere.radius;
+
+            scene.add(currentObject);
+            updateTransformation();
+        });
+    }
+
+    renderer.domElement.addEventListener('wheel', (e) => {
+
+        if (interactionMode === "object") {
+            e.preventDefault(); 
+
+            const sliderRadius = document.getElementById('radius-range');
+            const step = parseFloat(sliderRadius.step) || 0.05;
+            let val = parseFloat(sliderRadius.value);
+
+            if (e.deltaY < 0) {
+                val += step;
+            } else {
+                val -= step;
+            }
+
+            val = Math.max(sliderRadius.min, Math.min(sliderRadius.max, val));
+            
+            sliderRadius.value = val;
+            updateTransformation();
+        }
+    }, { passive: false });
+
+function updateTransformation() {
+    if (!currentObject) return;
+
+    const tx = parseFloat(document.getElementById('transX-range').value);
+    const ty = parseFloat(document.getElementById('transY-range').value);
+    const tz = parseFloat(document.getElementById('transZ-range').value);
+    
+    const targetRadius = parseFloat(document.getElementById('radius-range').value);
+    
+    const rotXdeg = document.getElementById('rotX-range').value;
+    const rotYdeg = document.getElementById('rotY-range').value;
+    const rotZdeg = document.getElementById('rotZ-range').value;
+
+    const rotX = (parseFloat(rotXdeg) * Math.PI) / 180;
+    const rotY = (parseFloat(rotYdeg) * Math.PI) / 180;
+    const rotZ = (parseFloat(rotZdeg) * Math.PI) / 180;
+
+    document.getElementById('trans-val').innerText = `${tx.toFixed(2)}, ${ty.toFixed(2)}, ${tz.toFixed(2)}`;
+    document.getElementById('radius-val').innerText = targetRadius.toFixed(2);
+    document.getElementById('rotX-val').innerText = rotXdeg + '°';
+    document.getElementById('rotY-val').innerText = rotYdeg + '°';
+    document.getElementById('rotZ-val').innerText = rotZdeg + '°';
+
+    referenceSphere.position.set(tx, ty, tz);
+    referenceSphere.scale.set(targetRadius, targetRadius, targetRadius);
+
+    const s = targetRadius / originalRadius;
+    currentObject.rotation.set(0, 0, 0);
+    currentObject.scale.set(s, s, s);
+    currentObject.rotation.set(rotX, rotY, rotZ);
+
+    const centeredPos = new THREE.Vector3(-originalCenter.x * s, -originalCenter.y * s, -originalCenter.z * s);
+    centeredPos.applyEuler(currentObject.rotation);
+    
+    currentObject.position.copy(centeredPos).add(new THREE.Vector3(tx, ty, tz));
+
+    currentObject.updateMatrix();
+    displayMatrix(currentObject.matrix);
+}
+
+    function displayMatrix(matrix) {
+        const e = matrix.elements;
+        document.getElementById('matrix-box').innerText = 
+            `[ ${e[0].toFixed(3)}, ${e[4].toFixed(3)}, ${e[8].toFixed(3)}, ${e[12].toFixed(3)} ]\n` +
+            `[ ${e[1].toFixed(3)}, ${e[5].toFixed(3)}, ${e[9].toFixed(3)}, ${e[13].toFixed(3)} ]\n` +
+            `[ ${e[2].toFixed(3)}, ${e[6].toFixed(3)}, ${e[10].toFixed(3)}, ${e[14].toFixed(3)} ]\n` +
+            `[ ${e[3].toFixed(3)}, ${e[7].toFixed(3)}, ${e[11].toFixed(3)}, ${e[15].toFixed(3)} ]`;
+    }
+
+    ['radius-range', 'rotX-range', 'rotY-range', 'rotZ-range','transX-range', 'transY-range', 'transZ-range'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.oninput = updateTransformation;
+    });
+
+    document.getElementById('prevBtn').onclick = () => {
+        currentIndex = (currentIndex - 1 + meshPaths.length) % meshPaths.length;
+        loadMesh(currentIndex);
+    };
+    
+    document.getElementById('nextBtn').onclick = () => {
+        currentIndex = (currentIndex + 1) % meshPaths.length;
+        loadMesh(currentIndex);
+    };
+
+    document.getElementById('saveBtn').onclick = () => {
+    if (!currentObject) return;
+
+    let meshName = prompt("Inserisci il nome per questa configurazione mesh:", 
+                          document.getElementById('mesh-name').innerText.replace('Mesh: ', ''));
+    
+    if (!meshName) return;
+
+    const matrixArray = currentObject.matrix.elements;
+
+    const data = {
+        mesh_name: meshName,
+        matrix: Array.from(matrixArray) 
+    };
+
+    fetch("http://127.0.0.1:5000/insert_mesh_info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === "success") {
+            alert("success!");
+        } else if (result.error === "exists") {
+            alert("already exists!");
+        } else {
+            alert("Errore: " + result.message);
+        }
+    })
+    .catch(error => alert("Errore di connessione al server"));
+};
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    window.onresize = () => {
+        camera.aspect = (window.innerWidth - 380) / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth - 380, window.innerHeight);
+    };
+
+    loadMesh(currentIndex);
+    animate();
+</script>
+</body>
+>>>>>>> 6874737b699f7a1ca2bf6e1b80e3dfb4816ec9bc
+</html>

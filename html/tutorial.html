@@ -1,0 +1,619 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tutorial Interazione Mesh</title>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: sans-serif; }
+    #overlay {
+      position: absolute;
+      top: 4%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgb(0, 0, 0);
+      padding: 12px 20px;
+      background-color: rgba(255, 255, 255, 0.836);
+      font-size: 3em;
+      z-index: 10;
+      border-bottom: 2px solid #009dbd;
+    }
+    #nextStepBtn {
+      width: 20%;
+      height: 15%;
+      position: absolute;
+      top: 50%;
+      right: 2%;
+      background: #296b91;
+      color: rgb(0, 0, 0);
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 2em;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    #nextStepBtn.active {
+      cursor: pointer;
+      opacity: 1;
+      background: #02fa0e;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/TrackballControls.js"></script>
+</head>
+<body>
+  <div id="overlay">Step 1: Ruota il personaggio con il tasto sinistro del mouse</div>
+  <button id="nextStepBtn" disabled>Avanti</button>
+
+  <script>
+    let scene, camera, renderer, controls;
+    let currentMesh = null;
+    let step = 0;
+    let initialCamPosition = null;
+    let initialCamDirection = null;
+
+
+    let stepDescriptions = [];
+    let finalButtonText = "";
+
+
+    function applyTranslation(lang) {
+        const translations = {
+            it: {
+                overlay: "Step 1: Ruota il personaggio con il tasto sinistro del mouse",
+                button: "Avanti",
+                finalButton: "Inizia questionario",
+                steps: [
+                    "Step 1: Ruota il personaggio con il tasto sinistro del mouse",
+                    "Step 2: Sposta il personaggio con il tasto destro del mouse",
+                    "Step 3: Zooma usando la rotella del mouse",
+                    "Step 4: Fai doppio click per resettare la camera"
+                ]
+            },
+            en: {
+                overlay: "Step 1: Rotate the character with the left mouse button",
+                button: "Next",
+                finalButton: "Start questionnaire",
+                steps: [
+                    "Step 1: Rotate the character with the left mouse button",
+                    "Step 2: Move the character with the right mouse button",
+                    "Step 3: Zoom using the mouse wheel",
+                    "Step 4: Double click to reset the camera"
+                ]
+            }
+        };
+    
+        const tr = translations[lang] || translations.en;
+        document.getElementById("overlay").innerText = tr.overlay;
+        document.getElementById("nextStepBtn").innerText = tr.button;
+        stepDescriptions = tr.steps;
+        finalButtonText = tr.finalButton;
+    }
+    
+
+    const savedLanguage = sessionStorage.getItem("language") || "en";
+    applyTranslation(savedLanguage);
+
+    const overlay = document.getElementById("overlay");
+    const nextStepBtn = document.getElementById("nextStepBtn");
+
+    let initialRotation, initialTarget, initialDistance;
+    let stepCompleted = false;
+
+    init();
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xffffff);
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 0, 5);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      function updateRendererSize() {
+
+        
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+       
+    }
+    window.addEventListener('resize', updateRendererSize);
+
+
+
+
+updateRendererSize();
+
+      controls = new THREE.TrackballControls(camera, renderer.domElement);
+      controls.rotateSpeed = 3.0;
+      controls.zoomSpeed = 10;
+      controls.panSpeed = 2;
+      controls.dynamicDampingFactor = 0.7;
+
+      const loader = new THREE.GLTFLoader();
+      loader.load('ModelliCC0/plants/plant.glb', function (gltf) {
+        const mesh = gltf.scene;
+        normalizeMesh(mesh);
+        currentMesh = mesh;
+        initialCamPosition = camera.position.clone();
+        initialCamDirection = new THREE.Vector3();
+        camera.getWorldDirection(initialCamDirection);
+
+      });
+
+      renderer.domElement.addEventListener("dblclick", () => {
+        resetCamera();
+        if (step === 3) markStepCompleted();
+      });
+
+      nextStepBtn.addEventListener("click", () => {
+        if (stepCompleted) {
+          step++;
+          if (step < stepDescriptions.length) {
+            overlay.innerText = stepDescriptions[step];
+            nextStepBtn.disabled = true;
+            nextStepBtn.classList.remove("active");
+            stepCompleted = false;
+
+
+            if (step === 2) {
+                resetCamera();
+                camera.position.set(0, 1, 16);
+                controls.update();
+              }
+
+
+            if (step === 3) {
+
+              camera.position.set(3, 2, -6);
+              controls.update();
+            }
+
+            if (step === 1 || step === 2 || step === 3) {
+              initialTarget = controls.target.clone();
+              initialDistance = camera.position.distanceTo(controls.target);
+              if (step === 1 && currentMesh) {
+                initialRotation = currentMesh.rotation.clone();
+              }
+            }
+          } else {
+            if (sessionStorage.getItem("language") === "it") {
+            overlay.innerText = "Tutorial completato! 🎉";
+          } else {
+            overlay.innerText = "Tutorial completed! 🎉";
+          }
+            
+            nextStepBtn.innerText = finalButtonText; 
+            nextStepBtn.onclick = () => {
+              window.location.href = "home.html";
+            };
+          }
+        }
+      });
+
+      addLights();
+      animate();
+    }
+
+    function addLights() {
+      const lig_inte = 0.1;
+      const pos = 7;
+
+      const lights = [
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte)
+      ];
+
+      lights[0].position.set(pos, 0, 0);
+      lights[1].position.set(-pos, 0, 0);
+      lights[2].position.set(0, pos, 0);
+      lights[3].position.set(0, -pos, 0);
+      lights[4].position.set(0, 0, pos);
+      lights[5].position.set(0, 0, -pos);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      lights.forEach(light => {
+        light.lookAt(0, 0, 0);
+        scene.add(light);
+      });
+    }
+
+    function normalizeMesh(mesh) {
+      const boundingBox = new THREE.Box3().setFromObject(mesh);
+      const boundingSphere = boundingBox.getBoundingSphere(new THREE.Sphere());
+      const scaleFactor = 2 / boundingSphere.radius;
+      const scaleMatrix = new THREE.Matrix4().makeScale(scaleFactor, scaleFactor, scaleFactor);
+      mesh.applyMatrix4(scaleMatrix);
+      const center = boundingSphere.center.clone().multiplyScalar(scaleFactor);
+      const translationMatrix = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
+      mesh.applyMatrix4(translationMatrix);
+      scene.add(mesh);
+    }
+
+    function resetCamera() {
+      camera.position.set(0, 0, 5);
+      camera.up.set(0, 1, 0);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      controls.target.set(0, 0, 0);
+      controls.update();
+
+      if (currentMesh) {
+        currentMesh.rotation.set(0, 0, 0);
+        currentMesh.updateMatrixWorld(true);
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+      checkStepProgression();
+    }
+
+    function markStepCompleted() {
+      stepCompleted = true;
+      nextStepBtn.disabled = false;
+      nextStepBtn.classList.add("active");
+    }
+
+    function checkStepProgression() {
+      if (!currentMesh || stepCompleted) return;
+
+      switch (step) {
+        case 0: 
+        if (step === 0 && initialCamDirection) {
+            const currentDirection = new THREE.Vector3();
+            camera.getWorldDirection(currentDirection);
+        
+            const angle = initialCamDirection.angleTo(currentDirection); 
+            if (angle > 0.7) {
+                markStepCompleted();
+            }
+        }
+          break;
+
+        case 1: 
+          if (controls.target.distanceTo(initialTarget) > 0.3) {
+            markStepCompleted();
+          }
+          break;
+
+        case 2: 
+          const dist = camera.position.distanceTo(controls.target);
+          if (Math.abs(dist - initialDistance) > 0.5) {
+            markStepCompleted();
+          }
+          break;
+
+        case 3: 
+          break;
+        
+        
+      }
+    }
+  </script>
+</body>
+</html>
+=======
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tutorial Interazione Mesh</title>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: sans-serif; }
+    #overlay {
+      position: absolute;
+      top: 4%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgb(0, 0, 0);
+      padding: 12px 20px;
+      background-color: rgba(255, 255, 255, 0.836);
+      font-size: 3em;
+      z-index: 10;
+      border-bottom: 2px solid #009dbd;
+    }
+    #nextStepBtn {
+      width: 20%;
+      height: 15%;
+      position: absolute;
+      top: 50%;
+      right: 2%;
+      background: #296b91;
+      color: rgb(0, 0, 0);
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 2em;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    #nextStepBtn.active {
+      cursor: pointer;
+      opacity: 1;
+      background: #02fa0e;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/TrackballControls.js"></script>
+</head>
+<body>
+  <div id="overlay">Step 1: Ruota il personaggio con il tasto sinistro del mouse</div>
+  <button id="nextStepBtn" disabled>Avanti</button>
+
+  <script>
+    let scene, camera, renderer, controls;
+    let currentMesh = null;
+    let step = 0;
+    let initialCamPosition = null;
+    let initialCamDirection = null;
+
+
+    let stepDescriptions = [];
+    let finalButtonText = "";
+
+
+    function applyTranslation(lang) {
+        const translations = {
+            it: {
+                overlay: "Step 1: Ruota il personaggio con il tasto sinistro del mouse",
+                button: "Avanti",
+                finalButton: "Inizia questionario",
+                steps: [
+                    "Step 1: Ruota il personaggio con il tasto sinistro del mouse",
+                    "Step 2: Sposta il personaggio con il tasto destro del mouse",
+                    "Step 3: Zooma usando la rotella del mouse",
+                    "Step 4: Fai doppio click per resettare la camera"
+                ]
+            },
+            en: {
+                overlay: "Step 1: Rotate the character with the left mouse button",
+                button: "Next",
+                finalButton: "Start questionnaire",
+                steps: [
+                    "Step 1: Rotate the character with the left mouse button",
+                    "Step 2: Move the character with the right mouse button",
+                    "Step 3: Zoom using the mouse wheel",
+                    "Step 4: Double click to reset the camera"
+                ]
+            }
+        };
+    
+        const tr = translations[lang] || translations.en;
+        document.getElementById("overlay").innerText = tr.overlay;
+        document.getElementById("nextStepBtn").innerText = tr.button;
+        stepDescriptions = tr.steps;
+        finalButtonText = tr.finalButton;
+    }
+    
+
+    const savedLanguage = sessionStorage.getItem("language") || "en";
+    applyTranslation(savedLanguage);
+
+    const overlay = document.getElementById("overlay");
+    const nextStepBtn = document.getElementById("nextStepBtn");
+
+    let initialRotation, initialTarget, initialDistance;
+    let stepCompleted = false;
+
+    init();
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xffffff);
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 0, 5);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      function updateRendererSize() {
+
+        
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+       
+    }
+    window.addEventListener('resize', updateRendererSize);
+
+
+
+
+updateRendererSize();
+
+      controls = new THREE.TrackballControls(camera, renderer.domElement);
+      controls.rotateSpeed = 3.0;
+      controls.zoomSpeed = 10;
+      controls.panSpeed = 2;
+      controls.dynamicDampingFactor = 0.7;
+
+      const loader = new THREE.GLTFLoader();
+      loader.load('ModelliCC0/plants/plant.glb', function (gltf) {
+        const mesh = gltf.scene;
+        normalizeMesh(mesh);
+        currentMesh = mesh;
+        initialCamPosition = camera.position.clone();
+        initialCamDirection = new THREE.Vector3();
+        camera.getWorldDirection(initialCamDirection);
+
+      });
+
+      renderer.domElement.addEventListener("dblclick", () => {
+        resetCamera();
+        if (step === 3) markStepCompleted();
+      });
+
+      nextStepBtn.addEventListener("click", () => {
+        if (stepCompleted) {
+          step++;
+          if (step < stepDescriptions.length) {
+            overlay.innerText = stepDescriptions[step];
+            nextStepBtn.disabled = true;
+            nextStepBtn.classList.remove("active");
+            stepCompleted = false;
+
+
+            if (step === 2) {
+                resetCamera();
+                camera.position.set(0, 1, 16);
+                controls.update();
+              }
+
+
+            if (step === 3) {
+
+              camera.position.set(3, 2, -6);
+              controls.update();
+            }
+
+            if (step === 1 || step === 2 || step === 3) {
+              initialTarget = controls.target.clone();
+              initialDistance = camera.position.distanceTo(controls.target);
+              if (step === 1 && currentMesh) {
+                initialRotation = currentMesh.rotation.clone();
+              }
+            }
+          } else {
+            if (sessionStorage.getItem("language") === "it") {
+            overlay.innerText = "Tutorial completato! 🎉";
+          } else {
+            overlay.innerText = "Tutorial completed! 🎉";
+          }
+            
+            nextStepBtn.innerText = finalButtonText; 
+            nextStepBtn.onclick = () => {
+              window.location.href = "home.html";
+            };
+          }
+        }
+      });
+
+      addLights();
+      animate();
+    }
+
+    function addLights() {
+      const lig_inte = 0.1;
+      const pos = 7;
+
+      const lights = [
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte),
+        new THREE.DirectionalLight(0xfffffc, lig_inte)
+      ];
+
+      lights[0].position.set(pos, 0, 0);
+      lights[1].position.set(-pos, 0, 0);
+      lights[2].position.set(0, pos, 0);
+      lights[3].position.set(0, -pos, 0);
+      lights[4].position.set(0, 0, pos);
+      lights[5].position.set(0, 0, -pos);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      lights.forEach(light => {
+        light.lookAt(0, 0, 0);
+        scene.add(light);
+      });
+    }
+
+    function normalizeMesh(mesh) {
+      const boundingBox = new THREE.Box3().setFromObject(mesh);
+      const boundingSphere = boundingBox.getBoundingSphere(new THREE.Sphere());
+      const scaleFactor = 2 / boundingSphere.radius;
+      const scaleMatrix = new THREE.Matrix4().makeScale(scaleFactor, scaleFactor, scaleFactor);
+      mesh.applyMatrix4(scaleMatrix);
+      const center = boundingSphere.center.clone().multiplyScalar(scaleFactor);
+      const translationMatrix = new THREE.Matrix4().makeTranslation(-center.x, -center.y, -center.z);
+      mesh.applyMatrix4(translationMatrix);
+      scene.add(mesh);
+    }
+
+    function resetCamera() {
+      camera.position.set(0, 0, 5);
+      camera.up.set(0, 1, 0);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      controls.target.set(0, 0, 0);
+      controls.update();
+
+      if (currentMesh) {
+        currentMesh.rotation.set(0, 0, 0);
+        currentMesh.updateMatrixWorld(true);
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+      checkStepProgression();
+    }
+
+    function markStepCompleted() {
+      stepCompleted = true;
+      nextStepBtn.disabled = false;
+      nextStepBtn.classList.add("active");
+    }
+
+    function checkStepProgression() {
+      if (!currentMesh || stepCompleted) return;
+
+      switch (step) {
+        case 0: 
+        if (step === 0 && initialCamDirection) {
+            const currentDirection = new THREE.Vector3();
+            camera.getWorldDirection(currentDirection);
+        
+            const angle = initialCamDirection.angleTo(currentDirection); 
+            if (angle > 0.7) {
+                markStepCompleted();
+            }
+        }
+          break;
+
+        case 1: 
+          if (controls.target.distanceTo(initialTarget) > 0.3) {
+            markStepCompleted();
+          }
+          break;
+
+        case 2: 
+          const dist = camera.position.distanceTo(controls.target);
+          if (Math.abs(dist - initialDistance) > 0.5) {
+            markStepCompleted();
+          }
+          break;
+
+        case 3: 
+          break;
+        
+        
+      }
+    }
+  </script>
+</body>
+</html>
+>>>>>>> 6874737b699f7a1ca2bf6e1b80e3dfb4816ec9bc

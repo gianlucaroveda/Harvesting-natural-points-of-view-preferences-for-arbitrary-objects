@@ -1,0 +1,501 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduzione al Questionario</title>
+    <link rel="stylesheet" href="styles_intr.css">
+</head>
+<body>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Questionario</title>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+    <div class="el"></div>
+  
+    
+        <div class="container">
+            <h2 id="welcomeText">Welcome to the Questionnaire</h2>
+            <p id="description">
+                In this questionnaire, you will be shown some questions. Each question will require you to observe one or more objects to answer. To complete the questionnaire, you must answer all questions. There are NO time limits or evaluations of the answers provided.
+            </p>
+            <br>
+            <div class="language-selector">
+                <div class="language-selector-header">
+                <h2 id="language_sel">Select Language</h2>
+                    <button type="button" id="btnItaliano">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" alt="Italian Flag"> IT
+                    </button>
+                    <button type="button" id="btnEnglish">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English Flag"> EN
+                    </button>
+                </div>
+            </div>
+    
+            <h3 id="personalData">Personal Data</h3>
+                <form id="introForm">
+                    <label for="nome" id="nameLabel">Name (required):</label>
+                    <input type="text" id="nome" name="nome" required>
+    
+                    <label for="eta" id="ageLabel">Age (required):</label>
+                    <select id="eta" name="eta">
+                        <option value="1-15">1-15</option>
+                        <option value="16-25">16-25</option>
+                        <option value="26-40">26-40</option>
+                        <option value="41-65">41-65</option>
+                        <option value="65+">65+</option>
+                    </select>
+    
+                    <label for="esperienza" id="experienceLabel">Experience with 3D modeling software:</label>
+                    <select id="esperienza" name="esperienza">
+                        <option value="expert" id="optionExpert">Expert</option>
+                        <option value="intermediate" id="optionIntermediate">Intermediate</option>
+                        <option value="never" id="optionNeverUsed">Never used</option>
+                    </select>
+                    <span class="question-mark" id="hintButton">?</span>
+    
+                    <p class="privacy">
+                        <input type="checkbox" id="privacy" name="privacy" required>
+                        <label for="privacy" id="privacyLabel">
+                            I accept the privacy conditions. The collected data will be used exclusively for scientific and research purposes and will not be shared with third parties.
+                        </label>
+                    </p>
+    
+                    <button type="submit" id="proseguiBtn" disabled>Proceed</button>
+            </form>
+        </div>
+
+    <div class="popup" id="experiencePopup">
+        <p id="popupText">📌<b>Expert:</b> Skilled and experienced user of 3D modeling software.<br>📌 <b>Intermediate:</b> Some past experience with software that allows interaction with 3D objects.<br>📌 <b>Never used:</b> Never used and unfamiliar with this field.</p>
+    </div>
+
+    <script>
+        const texts = {
+            it: {
+                language_sel:"Seleziona Liangua",
+                welcomeText: "Benvenuto al Questionario",
+                description: "In questo questionario ti verranno mostrate alcune domande. Ogni domanda richiederà di osservare uno o più oggetti per rispondere. Per completare il questionario, è necessario rispondere a tutte le domande.NON ci sono limiti di tempo o valutazioni sulle risposte fornite",
+                personalData: "Dati personali",
+                nameLabel: "Nome (obbligatorio):",
+                ageLabel: "Età (obbligatorio):",
+                experienceLabel: "Esperienza con programmi di modellazione 3D:",
+                privacyLabel: "Dichiaro di aver accettato le condizioni sulla privacy. I dati raccolti saranno utilizzati esclusivamente per finalità scientifiche e di ricerca e non saranno in alcun modo condivisi con terzi.",
+                proceedButton: "Prosegui",
+                popupText: "📌 <b>Esperto:</b> Capace ed esperto utilizzatore di programmi per la modellazione 3D.<br>📌 <b>Intermedio:</b> Una qualsiasi esperienza passata con programmi che permettono interazioni con oggetti 3D.<br>📌 <b>Mai usato:</b> Mai usato e poca dimestichezza con questo campo.",
+                options: {
+                    expert: "Esperto",
+                    intermediate: "Intermedio",
+                    neverUsed: "Mai usato"
+                }
+            },
+            en: {
+                language_sel:"Select Language",
+                welcomeText: "Welcome to the Questionnaire",
+                description: "In this questionnaire, you will be presented with several questions. Each question will require you to observe one or more objects in order to answer. To complete the questionnaire, you must answer all the questions. There are NO time limits or evaluations of the answers provided.",
+                personalData: "Personal Data",
+                nameLabel: "Name (required):",
+                ageLabel: "Age (required):",
+                experienceLabel: "Experience with 3D modeling software:",
+                privacyLabel: "I accepted the privacy conditions. The collected data will be used exclusively for scientific and research purposes and will not be shared with third parties.",
+                proceedButton: "Proceed",
+                popupText: "📌 <b>Expert:</b> Skilled and experienced user of 3D modeling software.<br>📌 <b>Intermediate:</b> Some past experience with software that allows interaction with 3D objects.<br>📌 <b>Never used:</b> Never used and unfamiliar with this field.",
+                options: {
+                    expert: "Expert",
+                    intermediate: "Intermediate",
+                    neverUsed: "Never used"
+                }
+            }
+        };
+    
+        function updateLanguage(lang) {
+            document.getElementById("language_sel").textContent = texts[lang].language_sel;
+            document.getElementById("welcomeText").textContent = texts[lang].welcomeText;
+            document.getElementById("description").textContent = texts[lang].description;
+            document.getElementById("personalData").textContent = texts[lang].personalData;
+            document.getElementById("nameLabel").textContent = texts[lang].nameLabel;
+            document.getElementById("ageLabel").textContent = texts[lang].ageLabel;
+            document.getElementById("experienceLabel").textContent = texts[lang].experienceLabel;
+            document.getElementById("privacyLabel").textContent = texts[lang].privacyLabel;
+            document.getElementById("proseguiBtn").textContent = texts[lang].proceedButton;
+            document.getElementById("popupText").innerHTML  = texts[lang].popupText;
+
+            document.getElementById("optionExpert").textContent = texts[lang].options.expert;
+            document.getElementById("optionIntermediate").textContent = texts[lang].options.intermediate;
+            document.getElementById("optionNeverUsed").textContent = texts[lang].options.neverUsed;
+            
+            sessionStorage.setItem("language", lang);
+            document.getElementById("btnItaliano").classList.toggle("active", lang === "it");
+            document.getElementById("btnEnglish").classList.toggle("active", lang === "en");
+        }
+        document.getElementById("btnItaliano").addEventListener("click", () => updateLanguage("it"));
+        document.getElementById("btnEnglish").addEventListener("click", () => updateLanguage("en"));
+
+    
+
+        const savedLanguage = sessionStorage.getItem("language") || "en";
+         updateLanguage(savedLanguage);
+
+
+        const hintButton = document.getElementById("hintButton");
+        const popup = document.getElementById("experiencePopup");
+
+        hintButton.addEventListener("mouseenter", () => {
+            popup.style.display = "block";
+            const rect = hintButton.getBoundingClientRect();
+            popup.style.top = `${rect.top + window.scrollY + 25}px`;
+            popup.style.left = `${rect.left + window.scrollX}px`;
+        });
+
+        hintButton.addEventListener("mouseleave", () => {
+            popup.style.display = "none";
+        });
+
+        popup.addEventListener("mouseenter", () => {
+            popup.style.display = "block";
+        });
+
+        popup.addEventListener("mouseleave", () => {
+            popup.style.display = "none";
+        });
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            function inviaDati() {
+
+                
+                const age = document.getElementById('eta').value;
+                const esperienza = document.getElementById('esperienza').value;
+
+                const sessionId = sessionStorage.getItem('sessionId');
+                
+                const dati = {
+                    id: sessionId,   
+                    age: age,        
+                    exp: esperienza  
+                };
+                
+                fetch("http://127.0.0.1:5000/insert_users", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dati)
+
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log("Dati inviati:", result);
+                    lastSavedPosition = dati;
+                })
+                .catch(error => console.error("Errore nell'invio dei dati:", error));
+            }
+            
+
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === "SCRIPT" && node.src.includes("caljgklbbfbcjjanaijlacgncafpegll")) {
+                            console.warn("Script indesiderato rimosso:", node.src);
+                            node.remove();
+                        }
+                    });
+                });
+            });
+        
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+  
+            document.querySelectorAll("script[src*='caljgklbbfbcjjanaijlacgncafpegll']").forEach(script => {
+                console.warn("Rimuovendo script indesiderato:", script.src);
+                script.remove();
+            });
+        
+
+            const privacyCheckbox = document.getElementById("privacy");
+            const proseguiBtn = document.getElementById("proseguiBtn");
+            const introForm = document.getElementById("introForm");
+        
+            if (!privacyCheckbox || !proseguiBtn || !introForm) {
+                console.error("Errore: uno o più elementi del form non sono stati trovati.");
+                return;
+            }
+
+            privacyCheckbox.addEventListener("change", function () {
+                proseguiBtn.disabled = !this.checked;
+            });
+
+            let sessionId = sessionStorage.getItem("sessionId");
+            if (!sessionId) {
+                sessionId = crypto.randomUUID();
+                sessionStorage.setItem("sessionId", sessionId);
+            }
+
+            introForm.addEventListener("submit", function (event) {
+                
+                inviaDati();
+                event.preventDefault(); 
+                window.location.href = "tutorial.html"; 
+            });
+
+        });
+        </script>
+        
+</body>
+</html>
+=======
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduzione al Questionario</title>
+    <link rel="stylesheet" href="styles_intr.css">
+</head>
+<body>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Questionario</title>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+    <div class="el"></div>
+  
+    
+        <div class="container">
+            <h2 id="welcomeText">Welcome to the Questionnaire</h2>
+            <p id="description">
+                In this questionnaire, you will be shown some questions. Each question will require you to observe one or more objects to answer. To complete the questionnaire, you must answer all questions. There are NO time limits or evaluations of the answers provided.
+            </p>
+            <br>
+            <div class="language-selector">
+                <div class="language-selector-header">
+                <h2 id="language_sel">Select Language</h2>
+                    <button type="button" id="btnItaliano">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Flag_of_Italy.svg" alt="Italian Flag"> IT
+                    </button>
+                    <button type="button" id="btnEnglish">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English Flag"> EN
+                    </button>
+                </div>
+            </div>
+    
+            <h3 id="personalData">Personal Data</h3>
+                <form id="introForm">
+                    <label for="nome" id="nameLabel">Name (required):</label>
+                    <input type="text" id="nome" name="nome" required>
+    
+                    <label for="eta" id="ageLabel">Age (required):</label>
+                    <select id="eta" name="eta">
+                        <option value="1-15">1-15</option>
+                        <option value="16-25">16-25</option>
+                        <option value="26-40">26-40</option>
+                        <option value="41-65">41-65</option>
+                        <option value="65+">65+</option>
+                    </select>
+    
+                    <label for="esperienza" id="experienceLabel">Experience with 3D modeling software:</label>
+                    <select id="esperienza" name="esperienza">
+                        <option value="expert" id="optionExpert">Expert</option>
+                        <option value="intermediate" id="optionIntermediate">Intermediate</option>
+                        <option value="never" id="optionNeverUsed">Never used</option>
+                    </select>
+                    <span class="question-mark" id="hintButton">?</span>
+    
+                    <p class="privacy">
+                        <input type="checkbox" id="privacy" name="privacy" required>
+                        <label for="privacy" id="privacyLabel">
+                            I accept the privacy conditions. The collected data will be used exclusively for scientific and research purposes and will not be shared with third parties.
+                        </label>
+                    </p>
+    
+                    <button type="submit" id="proseguiBtn" disabled>Proceed</button>
+            </form>
+        </div>
+
+    <div class="popup" id="experiencePopup">
+        <p id="popupText">📌<b>Expert:</b> Skilled and experienced user of 3D modeling software.<br>📌 <b>Intermediate:</b> Some past experience with software that allows interaction with 3D objects.<br>📌 <b>Never used:</b> Never used and unfamiliar with this field.</p>
+    </div>
+
+    <script>
+        const texts = {
+            it: {
+                language_sel:"Seleziona Liangua",
+                welcomeText: "Benvenuto al Questionario",
+                description: "In questo questionario ti verranno mostrate alcune domande. Ogni domanda richiederà di osservare uno o più oggetti per rispondere. Per completare il questionario, è necessario rispondere a tutte le domande.NON ci sono limiti di tempo o valutazioni sulle risposte fornite",
+                personalData: "Dati personali",
+                nameLabel: "Nome (obbligatorio):",
+                ageLabel: "Età (obbligatorio):",
+                experienceLabel: "Esperienza con programmi di modellazione 3D:",
+                privacyLabel: "Dichiaro di aver accettato le condizioni sulla privacy. I dati raccolti saranno utilizzati esclusivamente per finalità scientifiche e di ricerca e non saranno in alcun modo condivisi con terzi.",
+                proceedButton: "Prosegui",
+                popupText: "📌 <b>Esperto:</b> Capace ed esperto utilizzatore di programmi per la modellazione 3D.<br>📌 <b>Intermedio:</b> Una qualsiasi esperienza passata con programmi che permettono interazioni con oggetti 3D.<br>📌 <b>Mai usato:</b> Mai usato e poca dimestichezza con questo campo.",
+                options: {
+                    expert: "Esperto",
+                    intermediate: "Intermedio",
+                    neverUsed: "Mai usato"
+                }
+            },
+            en: {
+                language_sel:"Select Language",
+                welcomeText: "Welcome to the Questionnaire",
+                description: "In this questionnaire, you will be presented with several questions. Each question will require you to observe one or more objects in order to answer. To complete the questionnaire, you must answer all the questions. There are NO time limits or evaluations of the answers provided.",
+                personalData: "Personal Data",
+                nameLabel: "Name (required):",
+                ageLabel: "Age (required):",
+                experienceLabel: "Experience with 3D modeling software:",
+                privacyLabel: "I accepted the privacy conditions. The collected data will be used exclusively for scientific and research purposes and will not be shared with third parties.",
+                proceedButton: "Proceed",
+                popupText: "📌 <b>Expert:</b> Skilled and experienced user of 3D modeling software.<br>📌 <b>Intermediate:</b> Some past experience with software that allows interaction with 3D objects.<br>📌 <b>Never used:</b> Never used and unfamiliar with this field.",
+                options: {
+                    expert: "Expert",
+                    intermediate: "Intermediate",
+                    neverUsed: "Never used"
+                }
+            }
+        };
+    
+        function updateLanguage(lang) {
+            document.getElementById("language_sel").textContent = texts[lang].language_sel;
+            document.getElementById("welcomeText").textContent = texts[lang].welcomeText;
+            document.getElementById("description").textContent = texts[lang].description;
+            document.getElementById("personalData").textContent = texts[lang].personalData;
+            document.getElementById("nameLabel").textContent = texts[lang].nameLabel;
+            document.getElementById("ageLabel").textContent = texts[lang].ageLabel;
+            document.getElementById("experienceLabel").textContent = texts[lang].experienceLabel;
+            document.getElementById("privacyLabel").textContent = texts[lang].privacyLabel;
+            document.getElementById("proseguiBtn").textContent = texts[lang].proceedButton;
+            document.getElementById("popupText").innerHTML  = texts[lang].popupText;
+
+            document.getElementById("optionExpert").textContent = texts[lang].options.expert;
+            document.getElementById("optionIntermediate").textContent = texts[lang].options.intermediate;
+            document.getElementById("optionNeverUsed").textContent = texts[lang].options.neverUsed;
+            
+            sessionStorage.setItem("language", lang);
+            document.getElementById("btnItaliano").classList.toggle("active", lang === "it");
+            document.getElementById("btnEnglish").classList.toggle("active", lang === "en");
+        }
+        document.getElementById("btnItaliano").addEventListener("click", () => updateLanguage("it"));
+        document.getElementById("btnEnglish").addEventListener("click", () => updateLanguage("en"));
+
+    
+
+        const savedLanguage = sessionStorage.getItem("language") || "en";
+         updateLanguage(savedLanguage);
+
+
+        const hintButton = document.getElementById("hintButton");
+        const popup = document.getElementById("experiencePopup");
+
+        hintButton.addEventListener("mouseenter", () => {
+            popup.style.display = "block";
+            const rect = hintButton.getBoundingClientRect();
+            popup.style.top = `${rect.top + window.scrollY + 25}px`;
+            popup.style.left = `${rect.left + window.scrollX}px`;
+        });
+
+        hintButton.addEventListener("mouseleave", () => {
+            popup.style.display = "none";
+        });
+
+        popup.addEventListener("mouseenter", () => {
+            popup.style.display = "block";
+        });
+
+        popup.addEventListener("mouseleave", () => {
+            popup.style.display = "none";
+        });
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            function inviaDati() {
+
+                
+                const age = document.getElementById('eta').value;
+                const esperienza = document.getElementById('esperienza').value;
+
+                const sessionId = sessionStorage.getItem('sessionId');
+                
+                const dati = {
+                    id: sessionId,   
+                    age: age,        
+                    exp: esperienza  
+                };
+                
+                fetch("http://127.0.0.1:5000/insert_users", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dati)
+
+                })
+                .then(response => response.json())
+                .then(result => {
+                    console.log("Dati inviati:", result);
+                    lastSavedPosition = dati;
+                })
+                .catch(error => console.error("Errore nell'invio dei dati:", error));
+            }
+            
+
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === "SCRIPT" && node.src.includes("caljgklbbfbcjjanaijlacgncafpegll")) {
+                            console.warn("Script indesiderato rimosso:", node.src);
+                            node.remove();
+                        }
+                    });
+                });
+            });
+        
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+  
+            document.querySelectorAll("script[src*='caljgklbbfbcjjanaijlacgncafpegll']").forEach(script => {
+                console.warn("Rimuovendo script indesiderato:", script.src);
+                script.remove();
+            });
+        
+
+            const privacyCheckbox = document.getElementById("privacy");
+            const proseguiBtn = document.getElementById("proseguiBtn");
+            const introForm = document.getElementById("introForm");
+        
+            if (!privacyCheckbox || !proseguiBtn || !introForm) {
+                console.error("Errore: uno o più elementi del form non sono stati trovati.");
+                return;
+            }
+
+            privacyCheckbox.addEventListener("change", function () {
+                proseguiBtn.disabled = !this.checked;
+            });
+
+            let sessionId = sessionStorage.getItem("sessionId");
+            if (!sessionId) {
+                sessionId = crypto.randomUUID();
+                sessionStorage.setItem("sessionId", sessionId);
+            }
+
+            introForm.addEventListener("submit", function (event) {
+                
+                inviaDati();
+                event.preventDefault(); 
+                window.location.href = "tutorial.html"; 
+            });
+
+        });
+        </script>
+        
+</body>
+</html>
+>>>>>>> 6874737b699f7a1ca2bf6e1b80e3dfb4816ec9bc
