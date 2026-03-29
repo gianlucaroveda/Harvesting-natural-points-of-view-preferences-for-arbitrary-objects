@@ -1,0 +1,18 @@
+text,type
+Which of these artifacts is the oldest?,multi_model
+Take one representative photo for this scene.,photo_model
+What does this machine train?,single_model
+Which cup would you prefer as a gift?,multi_model
+Which backpack would you take to the mountains?,multi_model
+Take one photo for this vase.,photo_model
+Which desk would you choose for your home?,multi_model
+Which car looks faster to you?,multi_model
+Which camera looks more professional to you?,multi_model
+Which armchair would you sit on to read a book?,multi_model
+Which plant would you prefer on your balcony?,multi_model
+Where would you place this pieces of furniture?,single_model
+Which chair is more comfortable?,multi_model
+What is this knife suitable for?,single_model
+Which bag is more practical?,multi_model
+Which shoe is more suitable for running?,multi_model
+Which plate do you prefer?,multi_model

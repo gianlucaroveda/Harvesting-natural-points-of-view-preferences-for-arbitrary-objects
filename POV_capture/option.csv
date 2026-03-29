@@ -1,0 +1,43 @@
+questiontext,questiontype,model_name,lighting,trackball
+Which of these artifacts is the oldest?,multi_model,statue2.glb,ambient,orbit
+Which cup would you prefer as a gift?,multi_model,mug.glb,directional,orbit
+Which cup would you prefer as a gift?,multi_model,mug1.glb,directional,orbit
+Which cup would you prefer as a gift?,multi_model,mug2.glb,directional,orbit
+Which backpack would you take to the mountains?,multi_model,backpack.glb,directional,orbit
+Which backpack would you take to the mountains?,multi_model,backpack1.glb,directional,orbit
+Which backpack would you take to the mountains?,multi_model,backpack2.glb,directional,orbit
+Take one photo for this vase.,photo_model,vase2.glb,directional,orbit
+Which desk would you choose for your home?,multi_model,table.glb,directional,orbit
+Which desk would you choose for your home?,multi_model,table1.glb,directional,orbit
+Which desk would you choose for your home?,multi_model,table2.glb,directional,orbit
+Which car looks faster to you?,multi_model,car.glb,directional,orbit
+Which car looks faster to you?,multi_model,car1.glb,directional,orbit
+Which car looks faster to you?,multi_model,car2.glb,directional,orbit
+What is this knife suitable for?,single_model,knife.glb,directional,orbit
+Which camera looks more professional to you?,multi_model,camera.glb,directional,orbit
+Which camera looks more professional to you?,multi_model,camera2.glb,directional,orbit
+Which armchair would you sit on to read a book?,multi_model,armchair.glb,directional,orbit
+Which armchair would you sit on to read a book?,multi_model,armchair1.glb,directional,orbit
+Which armchair would you sit on to read a book?,multi_model,armchair2.glb,directional,orbit
+Which plant would you prefer on your balcony?,multi_model,plant.glb,directional,orbit
+Which plant would you prefer on your balcony?,multi_model,plant1.glb,directional,orbit
+Which plant would you prefer on your balcony?,multi_model,plant2.glb,directional,orbit
+What does this machine train?,single_model,gym_machine__body_solid.glb,directional,orbit
+Take one representative photo for this scene.,photo_model,boat_a.glb,directional,orbit
+Where would you place this pieces of furniture?,single_model,forniture.glb,directional,orbit
+What does this machine train?,single_model,bugati-divo.glb,directional,orbit
+Which chair is more comfortable?,multi_model,chair.glb,directional,orbit
+Which of these artifacts is the oldest?,multi_model,plant3.glb,ambient,orbit
+Which chair is more comfortable?,multi_model,chair1.glb,directional,orbit
+Which of these artifacts is the oldest?,multi_model,statue1.glb,directional,orbit
+Which of these artifacts is the oldest?,multi_model,statue.glb,directional,orbit
+Which of these artifacts is the oldest?,multi_model,car2.glb,directional,orbit
+Which chair is more comfortable?,multi_model,chair2.glb,directional,orbit
+Which bag is more practical?,multi_model,bag.glb,directional,orbit
+Which bag is more practical?,multi_model,bag1.glb,directional,orbit
+Which bag is more practical?,multi_model,bag2.glb,directional,orbit
+Which shoe is more suitable for running?,multi_model,shoe.glb,directional,orbit
+Which shoe is more suitable for running?,multi_model,shoe1.glb,directional,orbit
+Which shoe is more suitable for running?,multi_model,shoe2.glb,directional,orbit
+Which plate do you prefer?,multi_model,plate.glb,directional,orbit
+Which plate do you prefer?,multi_model,plate1.glb,directional,orbit
