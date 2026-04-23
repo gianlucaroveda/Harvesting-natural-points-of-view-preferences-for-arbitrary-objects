@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model Analysis Dashboard</title>
+    <style>
+        body { margin: 0; display: flex; height: 100vh; background-color: #111; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+
+        #sidebar { 
+            width: 32%; 
+            display: flex; 
+            flex-direction: column; 
+            border-right: 1px solid #333; 
+            background: #1a1a1a;
+            z-index: 10;
+        }
+        
+        #main-view { 
+            width: 68%; 
+            position: relative; 
+        }
+
+       #sphere-section { 
+    flex: 0 0 30%;
+    position: relative; 
+    background: radial-gradient(circle at center, #222 0%, #111 100%);
+    display: flex;
+    flex-direction: column;
+    margin: 15px; 
+    border-radius: 15px; 
+    border: 1px solid #333;
+    overflow: hidden;
+}
+
+
+#sphere-container { flex: 1; width: 100%; }
+
+
+.stat-label { color: #888; text-transform: uppercase; font-size: 15px; font-weight: bold; display: block; margin-top: 10px; }
+.stat-value { font-family: 'Courier New', monospace; font-size: 20px; color: #00ffcc; margin-bottom: 5px; display: block; }
+
+#ui-container {
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 20px; align-items: center;
+    background: rgba(0, 0, 0, 0.8); padding: 10px 30px; border-radius: 50px;
+    backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+}
+button {
+    background: #333; color: white; border: none; padding: 12px 24px;
+    cursor: pointer; border-radius: 25px; font-size: 18px; transition: 0.2s;
+}
+button:hover { background: #00ffcc; color: black; }
+#model-info { min-width: 180px; text-align: center; font-weight: bold; font-size: 14px; }
+
+.section-title { font-size: 21px; font-weight: bold; color: #00ffcc; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+hr { border: 0; border-top: 1px solid #333; margin: 15px 0; }
+
+
+#ui-layout-wrapper {
+    position: absolute;
+    bottom: 30px;
+    left: 20px; 
+    right: 20px;
+    display: flex;
+    align-items: center;
+    pointer-events: none; 
+}
+
+#cluster-controls {
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+#cluster-controls button {
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#btn-clusters { border-color: #ff00ff !important; color: #ff00ff; }
+#btn-centroids { border-color: #00ffcc !important; color: #00ffcc; }
+
+
+#ui-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 8px 25px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    pointer-events: auto;
+}
+
+#ui-container button {
+    padding: 8px 20px;
+    background: #333;
+}
+
+#stats-panel { 
+    flex: 1; 
+    padding: 25px; 
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; 
+}
+
+#cluster-details { 
+    flex: 1; 
+    overflow-y: auto; 
+    margin-top: 15px;
+    padding-right: 5px; 
+}
+
+#cluster-details::-webkit-scrollbar {
+    width: 4px;
+}
+#cluster-details::-webkit-scrollbar-track {
+    background: transparent;
+}
+#cluster-details::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+#cluster-details::-webkit-scrollbar-thumb:hover {
+    background: #ff00ff;
+}
+
+.cluster-card {
+    transition: 0.3s;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.cluster-card:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: #00ffcc !important;
+    transform: scale(1.02);
+}
+    </style>
+</head>
+<body>
+
+<div id="render-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;">
+    <div id="render-container" style="width: 80%; height: 80%; border: 2px solid #00ffcc; border-radius: 10px; position: relative; background: #111;">
+        <button onclick="closeRenderView()" style="position: absolute; top: -20px; right: -20px; background: #ff00ff; color: white; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; z-index: 1001; display: flex; align-items: center; justify-content: center;">✕</button>
+    </div>
+    <div id="overlay-info" style="margin-top: 20px; color: #00ffcc; font-family: monospace; text-transform: uppercase; letter-spacing: 2px;">Centroid Viewport</div>
+</div>
+
+    <div id="sidebar">
+        <div id="stats-panel">
+            <div class="section-title">Quantitative Analysis</div>
+            <span class="stat-label">POV Samples</span>
+            <span id="stat-n" class="stat-value">-</span>
+            <span class="stat-label">Average Distance</span>
+            <span id="stat-dist" class="stat-value">-</span>
+            <hr>
+            <div class="section-title">Cluster Analysis (Mean-Shift)</div>
+
+            <span class="stat-label">Total Clusters</span>
+            <span id="stat-clusters" class="stat-value" style="color: #ff00ff;">-</span>
+
+            <div id="cluster-details" style="margin-top: 15px;"></div>
+
+        </div>
+        <div id="sphere-section">
+            <div style="padding: 15px; position: absolute; top: 0; pointer-events: none;">
+            </div>
+            <div id="sphere-container"></div>
+        </div>
+    </div>
+
+<div id="main-view">
+    <div id="ui-layout-wrapper">
+        <div id="cluster-controls">
+            <button id="btn-clusters" onclick="toggleClusters()">Show Groups</button>
+            <button id="btn-centroids" onclick="toggleCentroids()">View Centroids</button>
+        </div>
+
+        <div id="ui-container">
+            <button onclick="changeModel(-1)">❮</button>
+            <div id="model-info">Loading...</div>
+            <button onclick="changeModel(1)">❯</button>
+        </div>
+    </div>
+</div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+   <script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+let scene, camera, renderer, controls, currentMesh;
+let sphereScene, sphereCamera, sphereRenderer, statsSphere;
+const povGroup = new THREE.Group();
+const spherePointsGroup = new THREE.Group();
+const loader = new GLTFLoader();
+
+let overlayScene;
+const overlayAmbient = new THREE.AmbientLight(0xffffff, 0.8);
+const overlayDirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+overlayDirLight.position.set(5, 10, 7); 
+
+let showClusters = false;
+let clusterDataGlobal = []; 
+const clusterGroup = new THREE.Group(); 
+const clusterSphereGroup = new THREE.Group(); 
+
+let showCentroids = false;
+const centroidGroup = new THREE.Group();
+
+
+//load 3D models - paths relative to the HTML file location
+const meshPaths = [  //'cars/car2.glb', 'bagsbag.glb',
+    ];
+let currentIndex = 0;
+
+const cleanCSVData = (str) => str ? str.replace(/["{}]/g, '').split(',') : [];
+
+setTimeout(() => {
+    initMain();
+    initSphere();
+    loadCurrentModel();
+}, 100);
+
+function initMain() {
+    const container = document.getElementById('main-view');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xE3E3E3);
+
+    camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    camera.position.set(0, 1.5, 4);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+    const light = new THREE.DirectionalLight(0xffffff, 1.5);
+    light.position.set(5, 10, 5);
+    scene.add(light);
+    
+    scene.add(povGroup);
+    scene.add(clusterGroup);
+
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    scene.add(centroidGroup);
+    window.addEventListener('resize', onWindowResize);
+
+    animate();
+}
+
+let overlayRenderer, overlayCamera;
+
+window.openRenderView = (clusterId) => {
+
+    const cluster = clusterDataGlobal.find(c => c.id === clusterId);
+    if (!cluster || !currentMesh) return;
+
+    const overlay = document.getElementById('render-overlay');
+    const container = document.getElementById('render-container');
+    const infoLabel = document.getElementById('overlay-info');
+    overlay.style.display = 'flex';
+    
+    const colorHex = `#${cluster.color.getHexString()}`;
+    infoLabel.innerHTML = `Visualization Centroids <b style="color:${colorHex}">Cluster #${cluster.id + 1}</b>`;
+    infoLabel.style.borderColor = colorHex;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    if (!overlayScene) {
+        overlayScene = new THREE.Scene();
+        overlayScene.background = new THREE.Color(0xE3E3E3);
+
+        overlayScene.add(overlayAmbient);
+        overlayScene.add(overlayDirLight);
+
+        overlayRenderer = new THREE.WebGLRenderer({ antialias: true });
+        overlayRenderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(overlayRenderer.domElement);
+        
+        overlayCamera = new THREE.PerspectiveCamera(cluster.fov, width / height, 0.1, 1000);
+    }
+
+    overlayRenderer.setSize(width, height);
+    overlayCamera.fov = cluster.fov;
+    overlayCamera.aspect = width / height;
+    overlayCamera.position.copy(cluster.pov);
+    overlayCamera.up.copy(cluster.up);
+    
+    const target = new THREE.Vector3().addVectors(cluster.pov, cluster.dir.clone().normalize());
+    overlayCamera.lookAt(target);
+    overlayCamera.updateProjectionMatrix();
+
+    overlayScene.add(currentMesh); 
+
+
+    const renderStep = () => {
+        if (overlay.style.display === 'none') return;
+        requestAnimationFrame(renderStep);
+        overlayRenderer.render(overlayScene, overlayCamera);
+    };
+    renderStep();
+};
+
+window.closeRenderView = () => {
+    const overlay = document.getElementById('render-overlay');
+
+    overlay.style.display = 'none';
+
+    if (currentMesh && scene) {
+        scene.add(currentMesh); 
+    }
+    
+    console.log("Vista overlay chiusa, modello ripristinato nella scena principale.");
+};
+function initSphere() {
+    const container = document.getElementById('sphere-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    sphereScene = new THREE.Scene();
+sphereCamera = new THREE.PerspectiveCamera(20, width / height, 0.1, 20); 
+sphereCamera.position.set(0, 0, 5.5);
+
+    sphereRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    sphereRenderer.setSize(width, height);
+    container.appendChild(sphereRenderer.domElement);
+
+    const geo = new THREE.SphereGeometry(1, 32, 32);
+
+    const shieldMat = new THREE.MeshBasicMaterial({ color: 0x111111, colorWrite: false, depthWrite: true });
+    const shield = new THREE.Mesh(geo, shieldMat);
+    shield.renderOrder = 1;
+    sphereScene.add(shield);
+
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true, transparent: true, opacity: 0.15, side: THREE.FrontSide });
+    statsSphere = new THREE.Mesh(geo, wireMat);
+    statsSphere.renderOrder = 3; 
+    sphereScene.add(statsSphere);
+
+    spherePointsGroup.renderOrder = 2; 
+    sphereScene.add(spherePointsGroup);
+    
+    clusterSphereGroup.renderOrder = 4; 
+    sphereScene.add(clusterSphereGroup); 
+}
+
+function updateSphereHeatmap(data) {
+    spherePointsGroup.clear();
+    data.forEach(d => {
+        const posOnSphere = d.pov.clone().normalize();
+        
+        const dot = new THREE.Mesh(
+            new THREE.SphereGeometry(0.04, 8, 8),
+            new THREE.MeshBasicMaterial({ 
+                color: 0x00ffcc, 
+                depthTest: true, 
+                depthWrite: false,
+                transparent: true,
+                opacity: 0.8
+            })
+        );
+        dot.position.copy(posOnSphere);
+        spherePointsGroup.add(dot);
+    });
+}
+
+async function getSavedMatrix(name) {
+            try {
+                const response = await fetch('model.csv');
+                const text = await response.text();
+                const lines = text.split('\n');
+                for (let line of lines) {
+                    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (parts[0].trim() === name) {
+                        return cleanCSVData(parts[1]).map(Number);
+                    }
+                }
+            } catch (e) { console.error("Errore lettura model.csv", e); }
+            return null;
+}
+
+async function loadCurrentModel() {
+            const url = meshPaths[currentIndex];
+            const name = url.split('/').pop();
+            document.getElementById('model-info').innerText = name;
+
+            if (currentMesh) scene.remove(currentMesh);
+            povGroup.clear();
+
+            loader.load(url, async (gltf) => {
+                currentMesh = gltf.scene;
+                currentMesh.traverse((child) => {
+                    if (child.isMesh) {
+                        if (child.material.isGLTFSpecularGlossinessMaterial || child.material.type !== 'MeshStandardMaterial') {
+                            const oldMat = child.material;
+                            child.material = new THREE.MeshStandardMaterial({
+                                map: oldMat.map,
+                                color: oldMat.color,
+                                normalMap: oldMat.normalMap,
+                                transparent: oldMat.transparent,
+                                opacity: oldMat.opacity,
+                                roughness: 1.0,
+                                metalness: 0.0
+                            });
+                            console.log(`Materiale convertito per: ${child.name}`);
+                        } else {
+                            child.material.metalness = 0;
+                            child.material.roughness = 1.0;
+                        }
+                        
+                        child.material.needsUpdate = true;
+                    }
+                });
+                const matrixArray = await getSavedMatrix(name);
+                if (matrixArray) {
+                    currentMesh.matrixAutoUpdate = false;
+                    currentMesh.matrix.fromArray(matrixArray);
+                    currentMesh.matrixWorldNeedsUpdate = true;
+                }
+                
+                scene.add(currentMesh);
+                loadPOVData(name);
+            });
+}
+
+
+    async function loadPOVData(meshName) {
+    try {
+        const response = await fetch('pov_data.csv');
+        const text = await response.text();
+        const lines = text.split('\n');
+        const data = [];
+
+        lines.forEach(line => {
+            if (!line.trim()) return; 
+            const cols = line.split(',');
+
+            if (cols[1] && cols[1].trim() === meshName) {
+        
+                const matches = line.match(/{([^}]+)}/g);
+                
+                if (matches && matches.length >= 3) {
+                    const p = cleanCSVData(matches[0]).map(Number); // POV
+                    const u = cleanCSVData(matches[1]).map(Number); // UP
+                    const d = cleanCSVData(matches[2]).map(Number); // DIR
+                    const fovValue = parseFloat(cols[cols.length - 1]);
+
+                    data.push({
+                        pov: new THREE.Vector3(p[0], p[1], p[2]),
+                        up:  new THREE.Vector3(u[0], u[1], u[2]),
+                        dir: new THREE.Vector3(d[0], d[1], d[2]),
+                        fov: isNaN(fovValue) ? 75 : fovValue 
+                    });
+                }
+            }
+        });
+
+        renderPOV(data);
+        updateSphereHeatmap(data);
+        processStatistics(data);
+    } catch (e) {
+        console.error("Errore lettura pov_data.csv:", e);
+    }
+}
+
+function calculateClusters(data) {
+    if (data.length === 0) return { clusters: [], assignedData: data };
+    const seeds = data.map(d => ({
+        pos: d.pov.clone().normalize(), 
+        dir: d.dir.clone().normalize()
+    }));
+
+    const bandwidth = 0.5; 
+    const iterations = 5; 
+
+    for (let iter = 0; iter < iterations; iter++) {
+        for (let i = 0; i < seeds.length; i++) {
+            let shiftPos = new THREE.Vector3(0, 0, 0);
+            let totalWeight = 0;
+            for (let j = 0; j < seeds.length; j++) {
+                if (seeds[i].pos.distanceTo(seeds[j].pos) < bandwidth) {
+                    shiftPos.add(seeds[j].pos);
+                    totalWeight++;
+                }
+            }
+            if (totalWeight > 0) seeds[i].pos.copy(shiftPos.divideScalar(totalWeight)).normalize();
+        }
+    }
+
+    const tempClusters = [];
+    const clusterThreshold = 0.2; 
+    seeds.forEach((seed, idx) => {
+        let found = tempClusters.find(c => seed.pos.distanceTo(c.centerPos) < clusterThreshold);
+        if (!found) tempClusters.push({ centerPos: seed.pos.clone(), indices: [idx] });
+        else found.indices.push(idx);
+    });
+
+    const minRequired = Math.max(2, Math.ceil(data.length * 0.04));
+    const validClusters = tempClusters.filter(c => c.indices.length >= minRequired);
+    const assignedData = data.map(d => ({ ...d, clusterId: -1, clusterColor: null }));
+    const finalClusters = [];
+
+    validClusters.forEach((c, i) => {
+        const hue = i / validClusters.length;
+        const vividColor = new THREE.Color().setHSL(hue, 1.0, 0.5);
+
+        const n = c.indices.length;
+        const avgPov = new THREE.Vector3(0,0,0);
+        const resultantDir = new THREE.Vector3(0,0,0);
+        const avgUp = new THREE.Vector3(0,0,0);
+        let sumFov = 0;
+
+        c.indices.forEach(idx => {
+            avgPov.add(data[idx].pov);
+            resultantDir.add(data[idx].dir.clone().normalize());
+            avgUp.add(data[idx].up);
+            sumFov += data[idx].fov;
+            
+            assignedData[idx].clusterId = i;
+            assignedData[idx].clusterColor = vividColor;
+        });
+
+
+        const meanPov = avgPov.clone().divideScalar(n); 
+        const meanResultant = resultantDir.clone().divideScalar(n);
+        const R_bar = meanResultant.length(); 
+        const meanDir = meanResultant.clone().normalize(); 
+        const meanFov = sumFov / n;
+        let posVarSum = 0;
+        c.indices.forEach(idx => {
+            posVarSum += data[idx].pov.distanceTo(meanPov) ** 2;
+        });
+        const posStdDev = Math.sqrt(posVarSum / n);
+        const angularStdDevRad = Math.sqrt(-2 * Math.log(Math.max(R_bar, 0.00001)));
+        const angularStdDevDeg = angularStdDevRad * (180 / Math.PI);
+
+        finalClusters.push({
+            id: i,
+            color: vividColor,
+            pov: meanPov,
+            dir: meanDir,
+            up: avgUp.divideScalar(n).normalize(),
+            fov: meanFov,
+            count: n,
+            percentage: ((n / data.length) * 100).toFixed(1),
+            posStdDev: posStdDev,
+            angStdDev: angularStdDevDeg,
+            cohesion: R_bar,
+            confidence: (R_bar * (1 - (posStdDev / 5))).toFixed(2) 
+        });
+    });
+
+    updateClusterUI(finalClusters);
+    return { clusters: finalClusters, assignedData };
+}
+
+function updateClusterUI(clusters) {
+    const container = document.getElementById('cluster-details');
+    if (!container) return;
+    container.innerHTML = ''; 
+
+    clusters.forEach(c => {
+        const colorHex = `#${c.color.getHexString()}`;
+        
+        // Creazione dell'elemento card
+        const card = document.createElement('div');
+        card.className = 'cluster-card';
+        card.style.cssText = `
+            border-left: 4px solid ${colorHex};
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px 8px 8px 4px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        `;
+
+        card.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; flex-direction: column;">
+            <span style="color: ${colorHex}; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px;">Cluster Analysis</span>
+            <b style="color: white; font-size: 20px;">ID #${c.id + 1}</b>
+        </div>
+        <div style="text-align: right;">
+            <span style="background: ${colorHex}; color: #000; padding: 4px 10px; border-radius: 4px; font-size: 14px; font-weight: 900;">
+                ${c.percentage}%
+            </span>
+            <div style="font-size: 14px; color: #aaa; margin-top: 4px; font-weight: 500;">${c.count} SAMPLES</div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px;">
+        <div>
+            <span style="color: #999; font-size: 11px; text-transform: uppercase; display: block; font-weight: bold; margin-bottom: 2px;">CoP (Position)</span>
+            <span style="color: #eee; font-size: 13px; font-family: monospace; font-weight: bold;">[${c.pov.x.toFixed(2)}, ${c.pov.y.toFixed(2)}]</span>
+            <div style="color: #00ffcc; font-size: 12px; margin-top: 4px; font-weight: 600;">σ ±${c.posStdDev.toFixed(3)}m</div>
+        </div>
+        <div>
+            <span style="color: #999; font-size: 11px; text-transform: uppercase; display: block; font-weight: bold; margin-bottom: 2px;">View (Direction)</span>
+            <span style="color: #eee; font-size: 13px; font-family: monospace; font-weight: bold;">∠ ${c.angStdDev.toFixed(1)}° Var.</span>
+            <div style="color: #ff00ff; font-size: 12px; margin-top: 4px; font-weight: 600;">Cohesion: ${(c.cohesion * 100).toFixed(0)}%</div>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 13px; color: #bbb; font-weight: 500;">
+            CONFIDENCE: <b style="color: #00ffcc; font-size: 14px;">${c.confidence}</b>
+        </div>
+        <button class="view-btn" style="
+            background: transparent; 
+            border: 1.5px solid ${colorHex}; 
+            color: ${colorHex}; 
+            padding: 6px 14px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+            font-weight: 900; 
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        ">View POV</button>
+    </div>
+`;
+
+        card.onmouseover = () => {
+            card.style.background = 'rgba(255, 255, 255, 0.08)';
+            card.style.transform = 'translateX(5px)';
+        };
+        card.onmouseout = () => {
+            card.style.background = 'rgba(255, 255, 255, 0.03)';
+            card.style.transform = 'translateX(0px)';
+        };
+        card.onclick = (e) => {
+            if (typeof window.openRenderView === 'function') {
+                window.openRenderView(c.id);
+            } else {
+                console.warn("Funzione openRenderView non ancora definita.");
+            }
+        };
+
+        container.appendChild(card);
+    });
+    
+    const statClusters = document.getElementById('stat-clusters');
+    if (statClusters) statClusters.innerText = clusters.length;
+}
+
+window.toggleClusters = () => {
+    showClusters = !showClusters;
+    const btn = document.getElementById('btn-clusters');
+    btn.style.background = showClusters ? "#ff00ff" : "#000";
+    btn.style.color = showClusters ? "black" : "#ff00ff";
+    btn.innerText = showClusters ? "Hide Cluster" : "Show Cluster";
+    renderClusterVisuals();
+};
+let assignedPovData = [];
+
+function renderPOV(data) {
+    povGroup.clear();
+    
+    data.forEach((entry, index) => {
+        const cam = new THREE.PerspectiveCamera(entry.fov, 1.7, 0.01, 0.1);
+        cam.position.copy(entry.pov);
+        const target = new THREE.Vector3().addVectors(entry.pov, entry.dir.clone().normalize());
+        cam.up.copy(entry.up).normalize();
+        cam.lookAt(target);
+        cam.updateMatrixWorld(true);
+
+        const helper = new THREE.CameraHelper(cam);
+
+        if (showClusters && entry.clusterId !== -1) {
+            helper.material.color.copy(entry.clusterColor);
+            helper.material.opacity = 1.0;
+        } else {
+            helper.material.color.set(0x06fff0);
+            helper.material.opacity = showClusters ? 0.15 : 0.6;
+        }
+        
+        helper.material.transparent = true;
+        povGroup.add(helper);
+    });
+}
+
+function renderClusterVisuals() {
+    clusterSphereGroup.clear();
+    renderPOV(assignedPovData);
+
+    if (!showClusters) return;
+
+    assignedPovData.forEach(d => {
+        if (d.clusterId !== -1) {
+            const dot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 8, 8),
+                new THREE.MeshBasicMaterial({ color: d.clusterColor, depthTest: false })
+            );
+            dot.position.copy(d.pov.clone().normalize());
+            clusterSphereGroup.add(dot);
+        }
+    });
+}
+
+
+window.toggleCentroids = () => {
+    showCentroids = !showCentroids;
+    const btn = document.getElementById('btn-centroids');
+    btn.style.background = showCentroids ? "#00ffcc" : "#000";
+    btn.style.color = showCentroids ? "black" : "#00ffcc";
+    btn.innerText = showCentroids ? "Hide Centroids" : "Show Centroids";
+
+    povGroup.visible = !showCentroids;
+    
+    renderCentroidVisuals();
+};
+
+
+function renderCentroidVisuals() {
+    centroidGroup.clear();
+    if (!showCentroids) return;
+
+    clusterDataGlobal.forEach(c => {
+
+        const cam = new THREE.PerspectiveCamera(c.fov, 1.7, 0.05, 0.3);
+        cam.position.copy(c.pov);
+        
+        const target = new THREE.Vector3().addVectors(
+            c.pov, 
+            c.dir.clone().normalize()
+        );
+        
+        cam.up.copy(c.up).normalize();
+        cam.lookAt(target);
+        cam.updateMatrixWorld(true);
+
+        const helper = new THREE.CameraHelper(cam);
+        helper.material.color.copy(c.color);
+        helper.material.linewidth = 3; 
+        
+        centroidGroup.add(helper);
+
+        const core = new THREE.Mesh(
+            new THREE.SphereGeometry(0.06, 16, 16),
+            new THREE.MeshBasicMaterial({ color: c.color })
+        );
+        core.position.copy(c.pov);
+        centroidGroup.add(core);
+    });
+}
+
+function processStatistics(data) {
+    if (data.length === 0) return;
+
+    let sumDist = 0;
+    let sumDir = new THREE.Vector3();
+    data.forEach(d => { 
+        sumDist += d.pov.length(); 
+        sumDir.add(d.dir.clone().normalize()); 
+    });
+
+    const avgDir = sumDir.divideScalar(data.length).normalize();
+    
+    // Salva i cluster globalmente
+    const result = calculateClusters(data);
+    assignedPovData = result.assignedData; 
+    clusterDataGlobal = result.clusters;  
+
+    document.getElementById('stat-n').innerText = data.length;
+    document.getElementById('stat-clusters').innerText = clusterDataGlobal.length;
+    document.getElementById('stat-dist').innerText = (sumDist/data.length).toFixed(3);
+    document.getElementById('stat-dir').innerText = `${avgDir.x.toFixed(2)}, ${avgDir.y.toFixed(2)}, ${avgDir.z.toFixed(2)}`;
+
+
+    if (showCentroids) {
+        renderCentroidVisuals();
+    }
+}
+       
+
+window.changeModel = (n) => {
+            currentIndex = (currentIndex + n + meshPaths.length) % meshPaths.length;
+            loadCurrentModel();
+            resetClusterState();
+            resetCentroidsState();
+};
+window.resetClusterState = () => {
+    showClusters = false;
+    
+    const btn = document.getElementById('btn-clusters');
+    if (btn) {
+        btn.style.background = "#000";
+        btn.style.color = "#ff00ff";
+        btn.innerText = "Show Cluster";
+    }
+
+    renderClusterVisuals(); 
+};
+window.resetCentroidsState = () => {
+    showCentroids = false;
+    const btn = document.getElementById('btn-centroids');
+
+    btn.style.background = showCentroids ? "#00ffcc" : "#000";
+    btn.style.color = showCentroids ? "black" : "#00ffcc";
+    btn.innerText = showCentroids ? "Hide Centroids" : "Show Centroids";
+
+    povGroup.visible = !showCentroids;
+    
+    renderCentroidVisuals();
+};
+
+
+        function onWindowResize() {
+            const main = document.getElementById('main-view');
+            camera.aspect = main.clientWidth / main.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(main.clientWidth, main.clientHeight);
+
+            const side = document.getElementById('sphere-container');
+            sphereCamera.aspect = side.clientWidth / side.clientHeight;
+            sphereCamera.updateProjectionMatrix();
+            sphereRenderer.setSize(side.clientWidth, side.clientHeight);
+        }
+function animate() {
+    requestAnimationFrame(animate);
+    if (controls) controls.update();
+    if (renderer && scene && camera) renderer.render(scene, camera);
+
+    if (sphereRenderer && sphereScene && sphereCamera) {
+        const camQuaternion = new THREE.Quaternion();
+        camera.getWorldQuaternion(camQuaternion);
+        const targetQuaternion = camQuaternion.clone().conjugate();
+
+        statsSphere.quaternion.copy(targetQuaternion);
+        spherePointsGroup.quaternion.copy(targetQuaternion);
+        clusterSphereGroup.quaternion.copy(targetQuaternion); 
+
+        const mainDist = camera.position.length();
+        let sphereDist = THREE.MathUtils.clamp(mainDist * 1.5, 2.8, 7.0);
+        sphereCamera.position.set(0, 0, sphereDist);
+        sphereCamera.lookAt(0, 0, 0);
+
+        sphereRenderer.render(sphereScene, sphereCamera);
+    }
+}
+</script>
+
+</body>
+</html>

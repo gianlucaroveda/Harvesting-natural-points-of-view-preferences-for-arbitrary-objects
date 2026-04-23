@@ -1,0 +1,2 @@
+1)Put the pov_data.cvs in the same folder.
+2)Downolad the 3D objects and put them in the "const meshPaths = []"
