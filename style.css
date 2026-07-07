@@ -1,0 +1,176 @@
+:root{
+  --ink:#16181b;
+  --muted:#63676e;
+  --paper:#faf9f6;
+  --line:#e2dfd8;
+  --accent:#138643;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Space Grotesk', sans-serif;
+  --body: 'IBM Plex Sans', sans-serif;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+a{color:var(--ink); text-decoration-color:var(--accent); text-underline-offset:3px;}
+a:hover{color:var(--accent);}
+
+sup{font-size:.6em;}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;
+  padding:6rem 1.5rem 4rem;
+  max-width:880px;
+  margin:0 auto;
+}
+
+.viewport-frame{position:absolute; inset:1.25rem; pointer-events:none;}
+.corner{position:absolute; width:22px; height:22px; border:2px solid var(--accent); opacity:.55;}
+.corner.tl{top:0; left:0; border-right:none; border-bottom:none;}
+.corner.tr{top:0; right:0; border-left:none; border-bottom:none;}
+.corner.bl{bottom:0; left:0; border-right:none; border-top:none;}
+.corner.br{bottom:0; right:0; border-left:none; border-top:none;}
+
+.hero-inner{position:relative; z-index:1;}
+
+h1{
+  font-family:var(--display);
+  font-weight:600;
+  font-size:clamp(1.9rem, 4vw, 2.9rem);
+  line-height:1.15;
+  margin:0 0 1.25rem;
+  letter-spacing:-.01em;
+}
+.accent-text{color:var(--accent);}
+
+.subtitle{
+  font-size:1.05rem;
+  color:var(--muted);
+  max-width:56ch;
+  margin:0 0 2rem;
+}
+
+.authors{margin:0 0 .25rem; font-size:.95rem;}
+.affiliations{margin:0 0 2rem; font-size:.85rem; color:var(--muted); font-family:var(--mono);}
+
+.cta-row{display:flex; flex-wrap:wrap; gap:.75rem;}
+.btn{
+  font-family:var(--mono);
+  font-size:.8rem;
+  letter-spacing:.02em;
+  padding:.6rem 1.1rem;
+  border:1px solid var(--ink);
+  border-radius:2px;
+  text-decoration:none;
+  color:var(--ink);
+}
+.btn:hover{background:var(--ink); color:var(--paper);}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:var(--paper);}
+.btn-primary:hover{background:var(--ink); border-color:var(--ink);}
+
+/* ---------- SECTIONS ---------- */
+main{max-width:880px; margin:0 auto; padding:0 1.5rem;}
+
+.rule{border:none; border-top:1px solid var(--line); margin:0;}
+
+.section{padding:3rem 0;}
+
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.75rem;
+  letter-spacing:.08em;
+  color:var(--accent);
+  margin:0 0 1rem;
+  display:flex; align-items:center; gap:.4rem;
+}
+
+.reticle{font-size:1em;}
+.reticle.small{font-size:.9em; color:var(--accent); flex:none; margin-top:.15em;}
+
+h2{
+  font-family:var(--display);
+  font-size:1.4rem;
+  margin:0 0 1.25rem;
+}
+
+.abstract-text{max-width:70ch; color:var(--ink);}
+
+/* paper card */
+.paper-card{
+  display:grid;
+  grid-template-columns:96px 1fr;
+  gap:1.5rem;
+  border:1px solid var(--line);
+  padding:1.5rem;
+  border-radius:4px;
+}
+.paper-thumb{
+  background:
+    linear-gradient(135deg, var(--line) 25%, transparent 25%) -6px 0,
+    linear-gradient(225deg, var(--line) 25%, transparent 25%) -6px 0;
+  background-size:12px 12px;
+  border-radius:3px;
+  min-height:96px;
+}
+.paper-body h3{font-family:var(--display); font-size:1.05rem; margin:0 0 .5rem;}
+.paper-authors{margin:0 0 .25rem; font-size:.9rem; color:var(--muted);}
+.paper-venue{font-family:var(--mono); font-size:.75rem; color:var(--accent); margin:0 0 .75rem;}
+.paper-desc{margin:0 0 1rem; font-size:.92rem;}
+.link-row{display:flex; gap:.75rem;}
+.link-chip{
+  font-family:var(--mono);
+  font-size:.8rem;
+  border:1px solid var(--ink);
+  padding:.3rem .7rem;
+  border-radius:2px;
+  text-decoration:none;
+}
+.link-chip:hover{background:var(--ink); color:var(--paper);}
+
+/* asset list */
+.asset-list{list-style:none; margin:0; padding:0; display:grid; gap:1.5rem;}
+.asset-list li{display:flex; gap:.75rem; align-items:flex-start;}
+.asset-list strong{display:block; margin-bottom:.25rem;}
+.download{
+  display:inline-block;
+  margin-top:.5rem;
+  font-family:var(--mono);
+  font-size:.8rem;
+  border-bottom:1px solid var(--accent);
+}
+
+/* bibtex */
+.bibtex{
+  background:#111214;
+  color:#e7e5df;
+  font-family:var(--mono);
+  font-size:.8rem;
+  line-height:1.6;
+  padding:1.25rem 1.5rem;
+  border-radius:4px;
+  overflow-x:auto;
+}
+
+/* ---------- FOOTER ---------- */
+.footer{
+  max-width:880px;
+  margin:0 auto;
+  padding:2rem 1.5rem 4rem;
+  font-size:.8rem;
+  color:var(--muted);
+  font-family:var(--mono);
+}
+
+@media (max-width:600px){
+  .paper-card{grid-template-columns:1fr;}
+  .paper-thumb{display:none;}
+}

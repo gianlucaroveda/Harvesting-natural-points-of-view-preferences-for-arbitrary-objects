@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harvesting Natural Viewpoint Preferences</title>
+<meta name="description" content="A framework to harvest large-scale datasets of natural viewpoint preferences for 3D objects.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="viewport-frame" aria-hidden="true">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+  </div>
+
+  <div class="hero-inner">
+    <h1><span class="accent-text">Harvesting natural points-of-view preferences</span><br>for arbitrary objects</h1>
+    <p class="subtitle">
+      A framework for harvesting point-of-view preferences silently captured while
+      users perform unrelated visual tasks.
+    </p>
+
+    <p class="authors">
+      <a href="https://github.com/gianlucaroveda">Gianluca Roveda</a><sup>1</sup>,
+      <a href="https://graphics.cs.aueb.gr/users/gepap/cv.html">Georgios Papaioannou</a><sup>2</sup>,
+      <a href="https://graphics.cs.aueb.gr/users/abasilak/">Andras A. Vasilakis</a><sup>2</sup>,
+      <a href="https://tarini.di.unimi.it/">Marco Tarini</a><sup>1</sup>
+    </p>
+    <p class="affiliations"><sup>1</sup> University of Milano, Italy &nbsp;·&nbsp; <sup>2</sup> Athens University of Economics and Business, Greece</p>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#paper">Read the paper</a>
+      <a class="btn" href="#data">Get the dataset</a>
+      <a class="btn" href="#tool">Get the tool</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ ABSTRACT ============ -->
+  <section class="section" id="abstract">
+    <p class="eyebrow"><span class="reticle" aria-hidden="true">⌖</span> ABSTRACT</p>
+    <p class="abstract-text">
+      Finding the optimal viewpoint for a 3D object is crucial for visualization, digital
+      marketing, and shape retrieval. Because viewpoint preference is driven by subjective
+      semantic and aesthetic biases, data-driven approaches require large datasets of user
+      preferences. In this work, we present a framework to crowdsource this data by implicitly
+      tracking user viewpoints during casual interaction with 3D objects. We publicly release
+      both our collected viewpoint dataset and the configurable tool used to harvest it.
+    </p>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ PAPER ============ -->
+  <section class="section" id="paper">
+    <p class="eyebrow"><span class="reticle" aria-hidden="true">⌖</span> SHORT PAPER</p>
+
+    <article class="paper-card">
+      <div class="paper-thumb" aria-hidden="true"></div>
+      <div class="paper-body">
+        <h3>Harvesting natural points-of-view preferences for arbitrary objects</h3>
+        <p class="paper-authors">
+          <a href="https://github.com/gianlucaroveda">Gianluca Roveda</a>,
+          <a href="https://graphics.cs.aueb.gr/users/gepap/cv.html">Georgios Papaioannou</a>,
+          <a href="https://graphics.cs.aueb.gr/users/abasilak/">Andras A. Vasilakis</a>,
+          <a href="https://tarini.di.unimi.it/">Marco Tarini</a>
+        </p>
+        <p class="paper-venue">[3DOR / 2026]</p>
+        <p class="paper-desc">
+          We introduce a task-based data collection framework that records how people
+          observe 3D objects while they are focused on an unrelated question, and use the
+          resulting corpus to study natural, unbiased viewpoint preference across object
+          categories.
+        </p>
+        <div class="link-row">
+          <a class="link-chip" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6604234">[pdf]</a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ DATA & TOOL ============ -->
+  <section class="section" id="data">
+    <p class="eyebrow"><span class="reticle" aria-hidden="true">⌖</span> DATASET &amp; TOOL</p>
+    <h2>Code &amp; Data</h2>
+
+    <ul class="asset-list">
+      <li>
+        <span class="reticle small" aria-hidden="true">⌖</span>
+        <div>
+          <strong>Viewpoint Capture</strong> — ≈10.000 viewpoints.
+          <a class="download" href="https://github.com/gianlucaroveda/Harvesting-natural-points-of-view-preferences-for-arbitrary-objects/tree/main/POV_capture" >Dataset&nbsp;📁</a>
+        </div>
+      </li>
+      <li>
+        <span class="reticle small" aria-hidden="true">⌖</span>
+        <div id="tool">
+          <strong>Harvesting tool</strong> — the configurable web app used to silently log viewpoint data;
+           drop in your own object set and questions to collect more data.
+          <a class="download" href="https://github.com/gianlucaroveda/Harvesting-natural-points-of-view-preferences-for-arbitrary-objects/tree/main/html">Tool</a>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <hr class="rule">
+
+
+
+</main>
+
+<footer class="footer">
+  <p>Code &amp; data released for academic use.</p>
+</footer>
+
+</body>
+</html>
