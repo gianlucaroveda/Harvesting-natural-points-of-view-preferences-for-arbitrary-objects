@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Harvesting Natural Viewpoint Preferences</title>
 <meta name="description" content="A framework to harvest large-scale datasets of natural viewpoint preferences for 3D objects.">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
   <div class="hero-inner">
     <h1> Project Page - <br><span class="accent-text">Harvesting natural points-of-view preferences for arbitrary objects</span></h1>
     <p class="subtitle">
-      A framework for harvesting point-of-view preferences silently captured while
+      OpenSource framework for harvesting point-of-view preferences silently captured while
       users perform unrelated visual tasks.
     </p>
 
@@ -39,10 +39,10 @@
     <div class="cta-row">
 
       <a class="btn btn-primary" href="https://github.com/gianlucaroveda/Harvesting-natural-points-of-view-preferences-for-arbitrary-objects/tree/main/POV_capture" target="_blank">
-        🗄️ Download the Dataset
+        <i class="fas fa-database"></i> Download the Dataset
       </a>
       <a class="btn" href="https://github.com/gianlucaroveda/Harvesting-natural-points-of-view-preferences-for-arbitrary-objects/tree/main/html" target="_blank">
-        ⚙️ Try the Harvesting Tool
+        <i class="fas fa-tools"></i> Harvesting Tool
       </a>
     </div>
   </div>
@@ -50,32 +50,12 @@
 
 <main>
 
-  <section class="section" id="abstract">
-    <p class="eyebrow"><span class="reticle" aria-hidden="true">⌖</span> OBJECTIVE</p>
-    <p class="abstract-text">
-      Finding the optimal viewpoint for a 3D object is crucial for visualization, digital
-      marketing, and shape retrieval. Because viewpoint preference is driven by subjective
-      semantic and aesthetic biases, data-driven approaches require large datasets of user
-      preferences. In this work, we present a framework to crowdsource this data by implicitly
-      tracking user viewpoints during casual interaction with 3D objects. We publicly release
-      both our collected viewpoint dataset and the configurable tool used to harvest it.
-    </p>
-  </section>
-
-  <hr class="rule">
-
- 
-
-  <hr class="rule">
-
-
-    <section class="section" id="results-visualization">
-    <p class="eyebrow"><span class="reticle" aria-hidden="true">⌖</span> CROWDSOURCED VIEWPOINTS</p>
+      <section class="section" id="results-visualization">
     <div style="display: flex; flex-wrap: wrap;  justify-content: center; margin-top: 20px;">
       
       <figure style="flex: 1; min-width: 300px; max-width: 100%; margin: 0; text-align: center;">
-        <img src="visual.jpg" alt="Visualizzazione dei cluster di punti di vista attorno a una sedia blu" style="width: 100%; height: auto; border-radius: 4px;">
-        <figcaption style="font-size: 0.9rem; color: #666; margin-top: 8px;">Capture Results and Clustering</figcaption>
+        <img src="visual.jpg" alt="A peek of our dataset: left, a cloud of viewpoints around a chair model; right, their clustrization" style="width: 100%; height: auto; border-radius: 4px;">
+        <figcaption style="font-size: 0.9rem; color: #666; margin-top: 8px;">A peek of our dataset: left, a cloud of viewpoints around a chair model; right, their clustrization</figcaption>
       </figure>
 
 
@@ -83,6 +63,24 @@
     </div>
   </section>
   <hr class="rule" >
+
+  <section class="section" id="abstract">
+    <p class="eyebrow"><span class="reticle" aria-hidden="true">⌖</span> ABOUT</p>
+    <p class="abstract-text">
+      Finding the optimal viewpoint for a 3D object is crucial for visualization, digital
+      marketing, and shape retrieval. Because viewpoint preference is driven by subjective
+      semantic and aesthetic biases, data-driven approaches require large datasets of user
+      preferences. This project presents a framework to collect viewpoint data by implicitly
+       tracking users during casual interactions with 3D objects. We publicly release both the 
+       dataset and the configurable tool used to gather it.
+    </p>
+  </section>
+
+  <hr class="rule">
+
+ 
+
+
 
   <!-- ============ DATA & TOOL ============ -->
   <section class="section" id="data">
@@ -110,11 +108,7 @@
 
   <hr class="rule">
 
-
-
-
 </main>
-
 <footer class="footer">
   <p>Code &amp; data released for academic use.</p>
 </footer>
