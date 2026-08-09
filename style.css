@@ -60,7 +60,26 @@ h1{
 }
 
 .authors{margin:0 0 .25rem; font-size:.95rem;}
+.authors sup{margin-left:1px;}
+.authors sup a{
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:600;
+}
+.authors sup a:hover{text-decoration:underline;}
 .affiliations{margin:0 0 2rem; font-size:.85rem; color:var(--muted); font-family:var(--mono);}
+.affiliations sup{margin-right:2px;}
+
+.award-badge{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  margin:0 0 2rem;
+  font-size:.9rem;
+  color:var(--ink);
+}
+.award-badge i{color:var(--accent);}
+.award-badge a{border-bottom:1px solid var(--accent);}
 
 .cta-row{display:flex; flex-wrap:wrap; gap:.75rem;}
 .btn{
@@ -112,6 +131,9 @@ h2{
   border:1px solid var(--line);
   padding:1.5rem;
   border-radius:4px;
+  margin-top:1.5rem;
+  width:100%;
+  background:#fff;
 }
 .paper-thumb{
   background:
@@ -133,8 +155,57 @@ h2{
   padding:.3rem .7rem;
   border-radius:2px;
   text-decoration:none;
+  color:var(--ink);
 }
+button.link-chip{background:none; cursor:pointer;}
 .link-chip:hover{background:var(--ink); color:var(--paper);}
+.link-chip[aria-expanded="true"]{background:var(--ink); color:var(--paper);}
+
+/* cite modal */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(22,24,27,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:1.5rem;
+  z-index:100;
+}
+.modal-backdrop[hidden]{display:none;}
+.modal-box{
+  position:relative;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:6px;
+  max-width:440px;
+  width:100%;
+  padding:2rem 1.75rem 1.75rem;
+  box-shadow:0 12px 32px rgba(0,0,0,.18);
+}
+.modal-box h3{
+  font-family:var(--display);
+  font-size:1.1rem;
+  margin:0 0 .75rem;
+}
+.modal-box p{
+  margin:0;
+  font-size:.92rem;
+  color:var(--muted);
+}
+.modal-close{
+  position:absolute;
+  top:.6rem;
+  right:.75rem;
+  background:none;
+  border:none;
+  font-size:1.4rem;
+  line-height:1;
+  color:var(--muted);
+  cursor:pointer;
+  padding:.25rem;
+}
+.modal-close:hover{color:var(--ink);}
 
 /* asset list */
 .asset-list{list-style:none; margin:0; padding:0; display:grid; gap:1.5rem;}

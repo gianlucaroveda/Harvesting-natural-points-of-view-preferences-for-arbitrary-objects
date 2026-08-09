@@ -29,14 +29,22 @@
     </p>
 
     <p class="authors">
-      <a href="https://github.com/gianlucaroveda">Gianluca Roveda</a>,
-      <a href="https://graphics.cs.aueb.gr/users/gepap/cv.html">Georgios Papaioannou</a>,
-      <a href="https://graphics.cs.aueb.gr/users/abasilak/">Andreas A. Vasilakis</a>,
-      <a href="https://tarini.di.unimi.it/">Marco Tarini</a>
+      <a href="https://github.com/gianlucaroveda">Gianluca Roveda</a><sup><a href="#aff-1">1</a></sup>,
+      <a href="https://graphics.cs.aueb.gr/users/gepap/cv.html">Georgios Papaioannou</a><sup><a href="#aff-2">2</a></sup>,
+      <a href="https://graphics.cs.aueb.gr/users/abasilak/">Andreas A. Vasilakis</a><sup><a href="#aff-2">2</a></sup>,
+      <a href="https://tarini.di.unimi.it/">Marco Tarini</a><sup><a href="#aff-1">1</a></sup>
     </p>
-    <p class="affiliations"> University of Milano, Italy &nbsp;·&nbsp;  Athens University of Economics and Business, Greece</p>
+    <p class="affiliations">
+      <span id="aff-1"><sup>1</sup> University of Milano, Italy</span> &nbsp;·&nbsp;
+      <span id="aff-2"><sup>2</sup> Athens University of Economics and Business, Greece</span>
+    </p>
 
-   
+    <p class="award-badge">
+      <i class="fas fa-trophy" aria-hidden="true"></i>
+      An earlier version of this project won the
+      <a href="https://www.stag-conference.org/2025/pages/call-for-thesis.html" target="_blank">STAG 2025 Thesis Award</a>.
+    </p>
+
     <div class="cta-row">
 
       <a class="btn btn-primary" href="https://github.com/gianlucaroveda/Harvesting-natural-points-of-view-preferences-for-arbitrary-objects/tree/main/POV_capture" target="_blank">
@@ -45,6 +53,28 @@
       <a class="btn" href="https://github.com/gianlucaroveda/Harvesting-natural-points-of-view-preferences-for-arbitrary-objects/tree/main/html" target="_blank">
         <i class="fas fa-tools"></i> Harvesting Tool
       </a>
+    </div>
+
+    <!-- TODO: swap the paper-thumb placeholder for a real preview image,
+         and link the actual PDF once it's on 3DOR. -->
+    <div class="paper-card">
+      <div class="paper-thumb" aria-hidden="true"></div>
+      <div class="paper-body">
+        <h3>Harvesting Natural Points-of-View Preferences for Arbitrary Objects</h3>
+        <p class="paper-venue">
+          In press ·
+          <a href="https://sites.google.com/view/3dor26/home" target="_blank">3DOR 2026 — Eurographics Symposium on 3D Object Retrieval</a>
+        </p>
+        <p class="paper-desc">Paper preprint </p>
+        <div class="link-row">
+          <button type="button" class="link-chip cite-toggle" id="cite-toggle" aria-haspopup="dialog" aria-controls="cite-modal">
+            <i class="fas fa-quote-right"></i> Cite
+          </button>
+          <a class="link-chip" href="#" target="_blank">
+            <i class="fas fa-file-pdf"></i> Download
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -109,10 +139,65 @@
 
   <hr class="rule">
 
+  <!-- ============ CITATION (future) ============
+       Draft bibtex, kept here for when 3DOR publishes the official entry.
+       When ready, drop this into the #cite-note box in the hero above,
+       replacing the "in press" placeholder paragraph.
+
+  @inproceedings{roveda2026harvesting,
+    author    = {Roveda, Gianluca and Papaioannou, Georgios and Vasilakis, Andreas A. and Tarini, Marco},
+    title     = {Harvesting Natural Points-of-View Preferences for Arbitrary Objects},
+    booktitle = {Eurographics Workshop on 3D Object Retrieval (3DOR)},
+    year      = {2026},
+    note      = {in press}
+  }
+  -->
+
 </main>
 <footer class="footer">
   <p>Code &amp; data released for academic use.</p>
 </footer>
+
+<!-- ============ CITE MODAL ============ -->
+<!-- Placeholder message. Once 3DOR publishes the official entry, replace the
+     paragraph below with the real bibtex (draft kept as a comment further up
+     this file, near the old CITATION section, for reference). -->
+<div class="modal-backdrop" id="cite-modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="cite-modal-title">
+    <button type="button" class="modal-close" id="cite-modal-close" aria-label="Close">&times;</button>
+    <h3 id="cite-modal-title">Cite this work</h3>
+    <p>The paper is currently in press at <a href="https://sites.google.com/view/3dor26/home" target="_blank">3DOR 2026</a>. The full citation will appear here as soon as it's published.</p>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const btn = document.getElementById('cite-toggle');
+    const modal = document.getElementById('cite-modal');
+    const closeBtn = document.getElementById('cite-modal-close');
+    if (!btn || !modal || !closeBtn) return;
+
+    function openModal() {
+      modal.removeAttribute('hidden');
+      btn.setAttribute('aria-expanded', 'true');
+      closeBtn.focus();
+    }
+    function closeModal() {
+      modal.setAttribute('hidden', '');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+
+    btn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal(); // click on backdrop
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.hasAttribute('hidden')) closeModal();
+    });
+  })();
+</script>
 
 </body>
 </html>
